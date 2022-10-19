@@ -2367,6 +2367,102 @@ class RandomizedSet {
 }
 ```
 
+### 396. 旋转函数
+
+> 给定一个长度为 n 的整数数组 nums 。
+>
+> 假设 arrk 是数组 nums 顺时针旋转 k 个位置后的数组，我们定义 nums 的 旋转函数  F 为：
+>
+>     F(k) = 0 * arrk[0] + 1 * arrk[1] + ... + (n - 1) * arrk[n - 1]
+>
+> 返回 F(0), F(1), ..., F(n-1)中的最大值 。
+>
+> 生成的测试用例让答案符合 32 位 整数。
+
+示例一：
+
+```java
+输入: nums = [4,3,2,6]
+输出: 26
+解释:
+F(0) = (0 * 4) + (1 * 3) + (2 * 2) + (3 * 6) = 0 + 3 + 4 + 18 = 25
+F(1) = (0 * 6) + (1 * 4) + (2 * 3) + (3 * 2) = 0 + 4 + 6 + 6 = 16
+F(2) = (0 * 2) + (1 * 6) + (2 * 4) + (3 * 3) = 0 + 6 + 8 + 9 = 23
+F(3) = (0 * 3) + (1 * 2) + (2 * 6) + (3 * 4) = 0 + 2 + 12 + 12 = 26
+所以 F(0), F(1), F(2), F(3) 中的最大值是 F(3) = 26 。
+```
+
+示例二：
+
+```java
+输入: nums = [100]
+输出: 0
+```
+
+思路：
+
+> ![image-20220423112844326](leecode%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0.assets/image-20220423112844326-16506845258841.png)
+>
+> ![image-20220423113900453](leecode%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0.assets/image-20220423113900453-16506851422922.png)
+
+代码：
+
+```java
+//O(n),O(n)
+public int maxRotateFunction(int[] nums) {
+    int n = nums.length;
+    int[] sum = new int[n*2+10];
+    sum[0] = nums[0];
+    for(int i = 1; i < 2*n; i++){
+        sum[i] = sum[i-1] + nums[i % n];
+    }
+    int ans = 0;
+    for(int i = 0; i < n; i++){
+        ans += nums[i] * i;
+    }
+    for(int i = n, cur = ans; i < 2*n; i++){
+        cur += nums[i % n] * (n -1);
+        cur -= sum[i-1] - sum[i-n];
+        ans = Math.max(ans, cur);
+    }
+    return ans;
+}
+//官方题解：O(n),O(1)
+//理解版
+public int maxRotateFunction(int[] nums) {
+    int n = nums.length;
+    int ans = 0;
+    int sum = 0;
+    int[] f = new int[n];
+    for(int i = 0; i < n; i++){
+        sum += nums[i];
+    }
+    for(int i = 0; i < n; i++){
+        f[0] += nums[i] * i;
+    }
+    ans = f[0];
+    for(int i = 1; i < n; i++){
+        f[i] = f[i-1] + sum - n * nums[n-i];
+        ans = Math.max(ans, f[i]);
+    }
+    return ans;
+}
+//答案版
+public int maxRotateFunction(int[] nums) {
+    int f = 0, n = nums.length, numSum = Arrays.stream(nums).sum();
+    for (int i = 0; i < n; i++) {
+        f += i * nums[i];
+    }
+    int res = f;
+    for (int i = n - 1; i > 0; i--) {
+        //不需要额外数组存放之前
+        f += numSum - n * nums[i];
+        res = Math.max(res, f);
+    }
+    return res;
+}
+```
+
 
 
 ### 542. 01矩阵
@@ -4711,6 +4807,83 @@ public ListNode deleteDuplicates(ListNode head) {
 
 ## 简单
 
+### 868. 二进制间距
+
+> 给定一个正整数 n，找到并返回 n 的二进制表示中两个 相邻 1 之间的 最长距离 。如果不存在两个相邻的 1，返回 0 。
+>
+> 如果只有 0 将两个 1 分隔开（可能不存在 0 ），则认为这两个 1 彼此 相邻 。两个 1 之间的距离是它们的二进制表示中位置的绝对差。例如，"1001" 中的两个 1 的距离为 3 。
+
+示例一：
+
+```java
+输入：n = 22
+输出：2
+解释：22 的二进制是 "10110" 。
+在 22 的二进制表示中，有三个 1，组成两对相邻的 1 。
+第一对相邻的 1 中，两个 1 之间的距离为 2 。
+第二对相邻的 1 中，两个 1 之间的距离为 1 。
+答案取两个距离之中最大的，也就是 2 。
+```
+
+示例二：
+
+```java
+输入：n = 8
+输出：0
+解释：8 的二进制是 "1000" 。
+在 8 的二进制表示中没有相邻的两个 1，所以返回 0 。
+```
+
+示例三：
+
+```java
+输入：n = 5
+输出：2
+解释：5 的二进制是 "101" 。
+```
+
+思路：
+
+>记住 Java 有这样一个函数：`Integer.toBinaryString`，它的作用是将数字转成其对应的二进制字符串（例如：`22 -> "10110"`），它是你做二进制题目最后一棵稻草...
+>
+>思路1：数字转二进制字符串，遍历二进制字符串，每次记录上一个 1 出现的位置
+>
+>方法二：
+>
+>我们可以使用一个循环从 n 二进制表示的低位开始进行遍历，并找出所有的 1。我们用一个变量 last 记录上一个找到的 1 的位置。如果当前在第 i 位找到了 1，那么就用 i−last更新答案，再将 last更新为 i 即可。
+>
+>在循环的每一步中，我们可以使用位运算 n & 1 获取 n 的最低位，判断其是否为 111。在这之后，我们将 n 右移一位：n = n >> 1，这样在第 i 步时，n & 1得到的就是初始 n 的第 i 个二进制位。
+>
+
+代码：
+
+```java
+public int binaryGap(int n) {
+    String binary = Integer.toBinaryString(n);
+    int lastIndex = n;
+    int maxGap = 0;
+    for(int i = 0; i < binary.length(); i++){
+        if(binary.charAt(i) == '1'){
+            maxGap = Math.max(maxGap, i - lastIndex);
+            lastIndex = i;
+        }
+    }
+    return maxGap;
+}
+//位运算：O
+public int binaryGap(int n) {
+    int lastIndex = n, ans = 0;
+    for(int i = 0; n != 0; i++){
+        if((n & 1) == 1){
+            ans = Math.max(ans, i - lastIndex);
+            lastIndex = i;
+        }
+        n >>= 1;
+    }
+    return ans;
+}
+```
+
 
 
 ## 中等
@@ -4791,6 +4964,41 @@ public int trailingZeroes(int n) {
     }
     return ans;
 }
+```
+
+### 398. 随机数索引
+
+> 给你一个可能含有 重复元素 的整数数组 nums ，请你随机输出给定的目标数字 target 的索引。你可以假设给定的数字一定存在于数组中。
+>
+> 实现 Solution 类：
+>
+>     Solution(int[] nums) 用数组 nums 初始化对象。
+>     int pick(int target) 从 nums 中选出一个满足 nums[i] == target 的随机索引 i 。如果存在多个有效的索引，则每个索引的返回概率应当相等。
+>
+
+示例：
+
+```java
+输入
+["Solution", "pick", "pick", "pick"]
+[[[1, 2, 3, 3, 3]], [3], [1], [3]]
+输出
+[null, 4, 0, 2]
+
+解释
+Solution solution = new Solution([1, 2, 3, 3, 3]);
+solution.pick(3); // 随机返回索引 2, 3 或者 4 之一。每个索引的返回概率应该相等。
+solution.pick(1); // 返回 0 。因为只有 nums[0] 等于 1 。
+solution.pick(3); // 随机返回索引 2, 3 或者 4 之一。每个索引的返回概率应该相等。
+```
+
+思路：
+
+>
+
+代码：
+
+```java
 ```
 
 
@@ -5031,3 +5239,88 @@ public List<Integer> lexicalOrder(int n) {
 >                                         *   求小于(含等于), 返回right
 >                                         * 核心思想: 要找某个值, 则查找时遇到该值时, 当前指针(例如right指针)要错过它, 让另外一个指针(left指针)跨过他(体现在left <= right中的=号), 则找到了
 >                                            */
+
+# 排序
+
+## 简单
+
+
+
+## 中等
+
+
+
+## 困难
+
+### 493.翻转对
+
+> 给定一个数组 nums ，如果 i < j 且 nums[i] > 2*nums[j] 我们就将 (i, j) 称作一个重要翻转对。
+>
+> 你需要返回给定数组中的重要翻转对的数量。
+>
+
+示例一：
+
+```java
+输入: [1,3,2,3,1]
+输出: 2
+```
+
+示例二：
+
+```java
+输入: [2,4,3,5,1]
+输出: 3
+```
+
+思路：
+
+> 归并排序
+
+代码：
+
+```java
+public int reversePairs(int[] arr) {
+    if (arr == null && arr.length < 2) {
+        return 0;
+    }
+    return process(arr, 0, arr.length - 1);
+}
+
+public static int process(int[] arr, int l, int r) {
+    if (l == r) {
+        return 0;
+    }
+    int mid = l + ((r - l) >> 1);
+    return process(arr, l, mid) + process(arr, mid + 1, r) + merge(arr, l, mid, r);
+}
+
+public static int merge(int[] arr, int l, int mid, int r) {
+    int ans = 0;
+    int win = mid + 1;
+    for (int i = l; i <= mid; i++) {
+        while (win <= r && (long)arr[i] > (long)arr[win] * 2) {
+            win++;
+        }
+        ans += win - mid - 1;
+    }
+    int[] help = new int[r - l + 1];
+    int i = 0;
+    int p1 = l;
+    int p2 = mid + 1;
+    while (p1 <= mid && p2 <= r) {
+        help[i++] = arr[p1] <= arr[p2] ? arr[p1++] : arr[p2++];
+    }
+    while (p1 <= mid) {
+        help[i++] = arr[p1++];
+    }
+    while (p2 <= r) {
+        help[i++] = arr[p2++];
+    }
+    for (i = 0; i < help.length; i++) {
+        arr[l + i] = help[i];
+    }
+    return ans;
+}
+```
+
