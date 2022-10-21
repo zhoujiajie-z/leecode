@@ -5324,3 +5324,53 @@ public static int merge(int[] arr, int l, int mid, int r) {
 }
 ```
 
+# 剑指 Offer
+
+## 简单
+
+### [03. 数组中重复的数字](https://leetcode.cn/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/)
+
+> 找出数组中重复的数字。
+>
+> 在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。
+
+* 示例：
+
+```java
+输入：
+[2, 3, 1, 0, 2, 5, 3]
+输出：2 或 3 
+```
+
+```java
+//暴力求解
+class Solution {
+    public int findRepeatNumber(int[] nums) {
+        int n = nums.length;
+        int[] arr = new int[n];
+        for(int i = 0; i<nums.length;i++){
+            arr[nums[i]]++;
+        }
+        for(int i = 0; i < arr.length;i++){
+            if(arr[i]>1){
+                return i;
+            }
+        }
+        return 0;
+    }
+}
+//HashSet
+class Solution {
+    public int findRepeatNumber(int[] nums) {
+        Set<Integer> set_list = new HashSet<>();
+        for(int num : nums){
+            if(set_list.contains(num)){
+                return num;
+            }
+            set_list.add(num);
+        }
+        return -1;
+    }
+}
+```
+
