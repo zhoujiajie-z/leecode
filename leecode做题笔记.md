@@ -5396,10 +5396,26 @@ class Solution {
 给定 target = 20，返回 false。
 ```
 
+思路：
+
+> 方法2: Z字形查找思路：
+> 	若 flag > target ，则 target 一定在 flag 所在 行的上方 ，即 flag 所在行可被消去。
+> 	若 flag < target ，则 target 一定在 flag 所在 列的右方 ，即 flag 所在列可被消去。
+> 从矩阵 matrix 左下角元素（索引设为 (i, j) ）开始遍历，并与目标值对比：
+>
+>     当 matrix[i][j] > target 时，执行 i-- ，即消去第 i 行元素；
+>     当 matrix[i][j] < target 时，执行 j++ ，即消去第 j 列元素；
+>     当 matrix[i][j] = target 时，返回 truetrue ，代表找到目标值。
+>
+> 若行索引或列索引越界，则代表矩阵中无目标值，返回 falsefalse 。
+
+> 方法3：二分查找
+> 由于矩阵 matrixmatrix 中每一行的元素都是升序排列的，因此我们可以对每一行都使用一次二分查找，判断 targettarget 是否在该行中，从而判断 targettarget 是否出现。
+
 代码：
 
 ```java
-//暴力解法
+//暴力解法：O(N*M)
 class Solution {
     public boolean findNumberIn2DArray(int[][] matrix, int target) {
         int len = matrix.length;
@@ -5414,6 +5430,50 @@ class Solution {
             }
         }
         return false;
+    }
+}
+//Z字形查找：O(N+M)
+class Solution {
+    public boolean findNumberIn2DArray(int[][] matrix, int target) {
+        int i = matrix.length-1;
+        int j = 0;
+        while(i >= 0 && j < matrix[0].length){
+            if(matrix[i][j] > target){
+                i--;
+            }else if(matrix[i][j] < target){
+                j++;
+            }else{
+                return true;
+            }
+        }
+        return false;
+    }
+}
+//二分查找：O(n*logM)
+class Solution {
+    public boolean findNumberIn2DArray(int[][] matrix, int target) {
+        for(int[] row : matrix){
+            int index = search(row, target);
+            if(index >= 0){
+                return true;
+            }
+        }
+        return false;
+    }
+    public int search(int[] arr, int target){
+        int low = 0, high = arr.length-1;
+        while(low <= high){
+            int mid = (high - low) / 2 + low;
+            int num = arr[mid];
+            if(num == target){
+                return mid;
+            }else if(num < target){
+                low = mid + 1;
+            }else{
+                high = mid -1;
+            }
+        }
+        return -1;
     }
 }
 ```
