@@ -5374,6 +5374,48 @@ class Solution {
 }
 ```
 
+### 05.[替换空格](https://leetcode.cn/problems/ti-huan-kong-ge-lcof/)
+
+> 请实现一个函数，把字符串 `s` 中的每个空格替换成"%20"。
+
+示例一：
+
+```java
+输入：s = "We are happy."
+输出："We%20are%20happy."
+```
+
+思路：
+
+>  在Java语言中，字符串都被设计成「不可变」的类型，即无法直接修改字符串的某一位字符，需要新建一个字符串实现。
+> 初始化一个 list (Python) / StringBuilder (Java) ，记为 res ；
+> 遍历列表 s 中的每个字符 c ：
+>
+>     当 c 为空格时：向 res 后添加字符串 "%20" ；
+>     当 c 不为空格时：向 res 后添加字符 c ；
+>
+> 将列表 res 转化为字符串并返回。
+
+代码：
+
+```java
+class Solution {
+    public String replaceSpace(String s) {
+        StringBuilder result = new StringBuilder();
+        for(char c : s.toCharArray()){
+            if(c == ' '){
+                result.append("%20");
+            }else{
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
+}
+```
+
+
+
 ## 中等
 
 ### [04. 二维数组中的查找](https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/)
