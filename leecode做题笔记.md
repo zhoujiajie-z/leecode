@@ -5414,6 +5414,44 @@ class Solution {
 }
 ```
 
+### [06. 从尾到头打印链表](https://leetcode.cn/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/)
+
+> 输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。
+
+示例一：
+
+```java
+输入：head = [1,3,2]
+输出：[2,3,1]
+```
+
+>思路：
+>
+>方法一：使用辅助栈
+>栈的特点是后进先出，即最后压入栈的元素最先弹出。考虑到栈的这一特点，使用栈将链表元素顺序倒置。从链表的头节点开始，依次将每个节点压入栈内，然后依次弹出栈内的元素并存储到数组中。
+
+代码：
+
+```java
+//方法一：使用辅助栈
+class Solution {
+    public int[] reversePrint(ListNode head) {
+        Stack<ListNode> stack = new Stack<>();
+        ListNode temp = head;
+        while(temp!=null){
+            stack.push(temp);
+            temp = temp.next;
+        }
+        int size = stack.size();
+        int[] result = new int[size];
+        for(int i = 0; i < size; i++){
+            result[i] = stack.pop().val;
+        }
+        return result;
+    }
+}
+```
+
 
 
 ## 中等
