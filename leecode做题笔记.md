@@ -5429,6 +5429,11 @@ class Solution {
 >
 >方法一：使用辅助栈
 >栈的特点是后进先出，即最后压入栈的元素最先弹出。考虑到栈的这一特点，使用栈将链表元素顺序倒置。从链表的头节点开始，依次将每个节点压入栈内，然后依次弹出栈内的元素并存储到数组中。
+>
+>方法二：递归
+>**利用递归：** 先走至链表末端，回溯时依次将节点值加入列表 ，这样就可以实现链表值的倒序输出。|
+>递推阶段： 每次传入 head.next ，以 head == null（即走过链表尾部节点）为递归终止条件，此时直接返回。
+>回溯阶段： 层层回溯时，将当前节点值加入列表，即tmp.add(head.val)
 
 代码：
 
@@ -5448,6 +5453,196 @@ class Solution {
             result[i] = stack.pop().val;
         }
         return result;
+    }
+}
+//方法二：使用递归法
+class Solution {
+    ArrayList<Integer> list = new ArrayList<>();
+    public int[] reversePrint(ListNode head) {
+        recur(head);
+        int size = list.size();
+        int[] result = new int[size];
+        for(int i =0; i < size; i++){
+            result[i] = list.get(i);
+        }
+        return result;
+    }
+    public void recur(ListNode node){
+        if(node == null)    return;
+        recur(node.next);
+        list.add(node.val);
+    }
+}
+```
+
+### [09. 用两个栈实现队列](https://leetcode.cn/problems/yong-liang-ge-zhan-shi-xian-dui-lie-lcof/)
+
+> 用两个栈实现一个队列。队列的声明如下，请实现它的两个函数 appendTail 和 deleteHead ，分别完成在队列尾部插入整数和在队列头部删除整数的功能。(若队列中没有元素，deleteHead 操作返回 -1 )
+
+示例一：
+
+```java
+输入：
+["CQueue","appendTail","deleteHead","deleteHead","deleteHead"]
+[[],[3],[],[],[]]
+输出：[null,null,3,-1,-1]
+```
+
+示例二：
+
+```java
+输入：
+["CQueue","deleteHead","appendTail","appendTail","deleteHead","deleteHead"]
+[[],[],[5],[2],[],[]]
+输出：[null,-1,null,null,5,2]
+```
+
+思路：
+
+> 将一个栈当作输入栈，用于压入appendTail 传入的数据；另一个栈当作输出栈，用于 deleteHead 操作。
+>
+> 每次 deleteHead 时，若输出栈为空则将输入栈的全部数据依次弹出并压入输出栈，这样输出栈从栈顶往栈底的顺序就是队列从队首往队尾的顺序。
+>
+
+代码：
+
+```java
+//双栈：O(1),O(n)
+class CQueue {
+    //inStack用作插入，outStack用作删除
+    Deque<Integer> inStack;
+    Deque<Integer> outStack;
+
+    public CQueue() {
+        inStack = new ArrayDeque<Integer>();
+        outStack = new ArrayDeque<Integer>();
+    }
+    
+    public void appendTail(int value) {
+        inStack.push(value);
+    }
+    
+    public int deleteHead() {
+        if(outStack.isEmpty()){
+            if(inStack.isEmpty()){
+                return -1;
+            }
+            in_out();
+        }
+        return outStack.pop();
+        
+    }
+
+    public void in_out(){
+        while(!inStack.isEmpty()){
+            outStack.push(inStack.pop());
+        }
+    }
+}
+```
+
+### [10- I. 斐波那契数列](https://leetcode.cn/problems/fei-bo-na-qi-shu-lie-lcof/)
+
+> 写一个函数，输入 n ，求斐波那契（Fibonacci）数列的第 n 项（即 F(N)）。斐波那契数列的定义如下：
+>
+> F(0) = 0,   F(1) = 1
+> F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
+> 斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。
+>
+> 答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+示例一：
+
+```java
+输入：n = 2
+输出：1
+```
+
+示例二：
+
+```java
+输入：n = 5
+输出：5
+```
+
+代码：
+
+```java
+//动态规划
+class Solution {
+    public int fib(int n) {
+        if(n == 0){
+            return 0;
+        }
+        
+        int[] dp = new int[n+1];
+        dp[0] = 0;
+        dp[1] = 1;
+        
+        for(int i = 2; i <= n; i++){
+            dp[i] = dp[i-1]+dp[i-2];
+            dp[i] %= 1000000007;
+        }
+
+        return dp[n];
+    }
+}
+```
+
+### [10- II. 青蛙跳台阶问题](https://leetcode.cn/problems/qing-wa-tiao-tai-jie-wen-ti-lcof/)
+
+> 一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。
+>
+> 答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+示例一：
+
+```java
+输入：n = 2
+输出：2
+```
+
+示例二：
+
+```java
+输入：n = 7
+输出：21
+```
+
+示例三：
+
+```java
+输入：n = 0
+输出：1
+```
+
+思路：
+
+> 此类求 *多少种可能性* 的题目一般都有 **递推性质** ，即 f(n)*f*(*n*) 和 f(n-1)*f*(*n*−1)…f(1)*f*(1) 之间是有联系的。
+>
+> 设跳上 n级台阶有 f(n) 种跳法。在所有跳法中，青蛙的最后一步只有两种情况： **跳上 1 级或 2 级台阶**
+>
+> 1. **当为 1 级台阶：** 剩 n-1个台阶，此情况共有 f(n-1) 种跳法；
+> 2. **当为 2级台阶：** 剩 n-2个台阶，此情况共有 f(n-2)种跳法。
+>
+> ![image-20221117154521258](leecode%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0.assets/image-20221117154521258.png)
+
+代码：
+
+```java
+class Solution {
+    public int numWays(int n) {
+        if(n == 0){
+            return 1;
+        }
+        int[] dp = new int[n+1];
+        dp[0] = 1;
+        dp[1] = 1;
+        for(int i = 2; i <= n; i++){
+            dp[i] = dp[i-1]+dp[i-2];
+            dp[i] %= 1000000007;
+        }
+        return dp[n];
     }
 }
 ```
