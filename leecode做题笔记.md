@@ -5647,6 +5647,179 @@ class Solution {
 }
 ```
 
+### [11. 旋转数组的最小数字](https://leetcode.cn/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/)
+
+> 把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。
+>
+> 给你一个可能存在 重复 元素值的数组 numbers ，它原来是一个升序排列的数组，并按上述情形进行了一次旋转。请返回旋转数组的最小元素。例如，数组 [3,4,5,1,2] 为 [1,2,3,4,5] 的一次旋转，该数组的最小值为 1。  
+>
+> 注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次 的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。
+
+示例一：
+
+```java
+输入：numbers = [3,4,5,1,2]
+输出：1
+```
+
+示例二：
+
+```java
+输入：numbers = [2,2,2,0,1]
+输出：0
+```
+
+思路：
+
+>我们考虑数组中的最后一个元素 x：在最小值右侧的元素，它们的值一定都小于等于 x；而在最小值左侧的元素，它们的值一定都大于等于 x。因此，我们可以根据这一条性质，通过二分查找的方法找出最小值。
+>在二分查找的每一步中，左边界为low，右边界为high，区间的中点为 pivot，最小值就在该区间内。我们将中轴元素numbers[pivot] 与右边界元素numbers[high] 进行比较，可能会有以下的三种情况：
+>**第一种情况是 numbers[pivot]<numbers[high]**。如下图所示，这说明numbers[pivot] 是最小值右侧的元素，因此我们可以忽略二分查找区间的右半部分。
+>**第二种情况是numbers[pivot]>numbers[high]**。如下图所示，这说明numbers[pivot] 是最小值左侧的元素，因此我们可以忽略二分查找区间的左半部分。
+>**第三种情况是numbers[pivot]==numbers[high]**。如下图所示，由于重复元素的存在，我们并不能确定 numbers[pivot] 究竟在最小值的左侧还是右侧，因此我们不能莽撞地忽略某一部分的元素。我们唯一可以知道的是，由于它们的值相同，所以无论 numbers[high] 是不是最小值，都有一个它的「替代品」numbers[pivot]，因此我们可以忽略二分查找区间的右端点。
+
+代码：
+
+```java
+//暴力求解，求数组最小值
+class Solution {
+    public int minArray(int[] numbers) {
+        int min = numbers[0];
+        for(int i = 0; i < numbers.length; i++){
+            if(numbers[i] < min){
+                min = numbers[i];
+            }
+        }
+        return min;
+    }
+}
+//二分法
+class Solution {
+    public int minArray(int[] numbers) {
+        int left = 0, right = numbers.length-1;
+        while(left < right){
+            int mid = left + (right - left) / 2;
+            if(numbers[mid] > numbers[right]){
+                left = mid + 1;
+            }else if(numbers[mid] > numbers[left]){
+                right = mid;
+            }else{
+                right = right - 1;
+            }
+        }
+        return numbers[left];
+    }
+}
+```
+
+
+
+### [24. 反转链表](https://leetcode.cn/problems/fan-zhuan-lian-biao-lcof/)
+
+> 定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
+
+示例一：
+
+```java
+输入: 1->2->3->4->5->NULL
+输出: 5->4->3->2->1->NULL
+```
+
+思路：
+
+> 方法一：迭代O(n), O(1)
+> 在遍历链表时，将当前节点的 next 指针改为指向前一个节点。由于节点没有引用其前一个节点，因此必须事先存储其前一个节点。在更改引用之前，还需要存储后一个节点。最后返回新的头引用。
+>
+> 方法二：递归O(n), O(n)
+
+代码：
+
+```java
+//方法一
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode pre = null;
+        ListNode cur = head;
+        while(cur != null){
+            ListNode next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+}
+//方法二
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        if(head == null || head.next == null){
+            return head;
+        }
+        ListNode newHead = reverseList(head.next);
+        head.next.next = head;
+        head.next = null;
+        return newHead;
+    }
+}
+```
+
+
+
+### [30. 包含min函数的栈](https://leetcode.cn/problems/bao-han-minhan-shu-de-zhan-lcof/)
+
+> 定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。
+
+示例一：
+
+```java
+MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.min();   --> 返回 -3.
+minStack.pop();
+minStack.top();      --> 返回 0.
+minStack.min();   --> 返回 -2.
+```
+
+代码：
+
+```java
+class MinStack {
+
+    Stack<Integer> data, min;
+    /** initialize your data structure here. */
+    public MinStack() {
+        // 数据栈，存放数据
+        data = new Stack<Integer>();
+        // 辅助站，存放当前最小值
+        min = new Stack<Integer>();
+    }
+    
+    public void push(int x) {
+        data.push(x);
+        // 如果当前添加的元素为最小值，则压入辅助栈中
+        if(min.isEmpty() || min.peek() >= x){
+            min.push(x);
+        }
+    }
+    
+    public void pop() {
+        // 保证数据栈与辅助栈的一致性，Stack中存放的int类型为Integer，所以使用equals替代==
+        if(data.pop().equals(min.peek())){
+            min.pop();
+        }
+    }
+    
+    public int top() {
+        return data.peek();
+    }
+    
+    public int min() {
+        return min.peek();
+    }
+}
+```
+
 
 
 ## 中等
@@ -5749,6 +5922,176 @@ class Solution {
             }
         }
         return -1;
+    }
+}
+```
+
+
+
+### [35. 复杂链表的复制](https://leetcode.cn/problems/fu-za-lian-biao-de-fu-zhi-lcof/)
+
+> 请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。
+
+示例一：
+
+```java
+输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+```
+
+示例二：
+
+```java
+输入：head = [[1,1],[2,1]]
+输出：[[1,1],[2,1]]
+```
+
+示例三：
+
+```java
+输入：head = [[3,null],[3,0],[3,null]]
+输出：[[3,null],[3,0],[3,null]]
+```
+
+代码：
+
+```java
+// 哈希表
+class Solution {
+    public Node copyRandomList(Node head) {
+        if(head == null) return null;
+        Node cur = head;
+        Map<Node,Node> map = new HashMap<>();
+        // 复制各节点，并建立 “原节点 -> 新节点” 的 Map 映射
+        while(cur != null){
+            map.put(cur,new Node(cur.val));
+            cur = cur.next;
+        }
+        cur = head;
+        // 构建新链表的 next 和 random 指向
+        while(cur != null){
+            map.get(cur).next = map.get(cur.next);
+            map.get(cur).random = map.get(cur.random);
+            cur = cur.next;
+        }
+        return map.get(head);
+    }
+}
+//拼接加拆分
+class Solution {
+    public Node copyRandomList(Node head) {
+        if(head == null)    return null;
+        Node cur = head;
+        // 复制新结点，构造原结点1->新结点1->原结点2->新结点2
+        while(cur != null){
+            Node temp = new Node(cur.val);
+            temp.next = cur.next;
+            cur.next = temp;
+            cur = temp.next;
+        }
+        cur = head;
+        // 构建各新节点的 random 指向
+        while(cur != null){
+            if(cur.random != null){
+                cur.next.random = cur.random.next;
+            }
+            cur = cur.next.next;
+        }
+        cur = head.next;
+        Node pre = head, res = head.next;
+        // 拆分两链表
+        while(cur.next != null){
+            pre.next = pre.next.next;
+            cur.next = cur.next.next;
+            pre = pre.next;
+            cur = cur.next;
+        }
+        // 当pre到达最后一个原链表最后一个时，此时cur到达新链表最后一位，cur.next==null,不进入下一次循环，pre.next没有赋值
+        pre.next = null;
+        return res;
+    }
+}
+```
+
+
+
+# 剑指Offer2专项
+
+## 简单
+
+### [001. 整数除法](https://leetcode.cn/problems/xoh6Oh/)
+
+> 给定两个整数 `a` 和 `b` ，求它们的除法的商 `a/b` ，要求不得使用乘号 `'*'`、除号 `'/'` 以及求余符号 `'%'` 
+
+示例一：
+
+```java
+输入：a = 15, b = 2
+输出：7
+解释：15/2 = truncate(7.5) = 7
+```
+
+示例二：
+
+```java
+输入：a = 7, b = -3
+输出：-2
+解释：7/-3 = truncate(-2.33333..) = -2
+```
+
+示例三：
+
+```java
+输入：a = 0, b = 1
+输出：0
+```
+
+示例四：
+
+```java
+输入：a = 1, b = 1
+输出：1
+```
+
+思路：
+
+> 由于题目要求不能使用乘法、除法以及求余，因此考虑用加法代替乘法。对于 a / b, a、b都是整数，为了缩小讨论范围，假设a、b都是正数，那么商的范围为[0, a]，当a < b或b = 0(无意义)时为0。可以通过不断倍增b并将倍增结果与a比较来找到商，这实际上是一个二分搜索的过程。关键代码如下(a / b = c)。应当注意，b在倍增过程中，若超过最大值的一半，那么b + b会因为溢出得到负数，此时 <= a的判断将导致错误的结果，因此在while条件中要使得b <= Integer.MAX_VALUE / 2。例如a = Integer.MAX_VALUE, b = 1时，b会倍增到1073741824 > Integer.MAX_VALUE / 2 = 1073741823，不满足上述条件跳出循环（短路判断）。由于在有剩余的情况下余下部分的大小需要与b进行比较，因此用d = b来表示除数的倍增变化，用ans来累计商。
+>
+> 当a、b不同号时，一个自然的想法是按正整数求解，返回结果时再取反即可。按照这个想法，现在来考虑a、b的符号以及edge cases。a、b的范围均为[-2^31, 2^31 - 1]，为方便，定义MIN = -2^31, MAX = 2^31 - 1。可以看到MIN的绝对值比MAX更大，当a = MIN时，对a取反会导致溢出。因此我们反其道而行之，按a、b都为负数处理，这样就可以覆盖所有a、b取值的情形。将前述假设a、b均为正数的代码修正为假设a、b均为负数的版本。另外对于第二个while中的(d + d <= a)，有经验的话不难察觉到d + d的写法可能导致加法溢出，因此改写为d <= a - d。但由于第一个条件已经避免了d + d溢出的情形，因此无需改写。
+>
+> 题目已经声明b != 0，因此无需考虑这个edge case。唯一需要处理的edge case是a = -2^31, b = -1，此时会溢出，按题目要求应该返回MAX。
+
+代码：
+
+```java
+class Solution {
+    public int divide(int a, int b) {
+        //特判   -2^31/-1=2^31溢出 所以返回2^31-1
+        if(a==Integer.MIN_VALUE && b == -1){
+            return Integer.MAX_VALUE;
+        }
+        // 判断商为正还是负
+        boolean isPos = (a < 0 && b < 0) || (a > 0 && b > 0) ? true : false;
+        // 将整体按照负数进行计算
+        if(a > 0) a = -a;
+        if(b > 0) b = -b;
+        // 商值
+        int ans = 0;
+        while(a <= b){
+            // d为当前除数，c为当前商
+            int d = b, c = 1;
+            // 第一个条件是防止d+d溢出
+            while(d >= Integer.MIN_VALUE >> 1 && d + d >= a){
+                d += d; //当前除数倍增 
+                c += c; //当前商倍增
+            }
+            a -= d; //a剩余部分
+            ans += c;
+        }
+        if(isPos){  
+            return ans;
+        }
+        return -ans;
     }
 }
 ```
