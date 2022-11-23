@@ -5822,6 +5822,250 @@ class MinStack {
 
 
 
+### [53 - I. 在排序数组中查找数字 I](https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/)
+
+> 统计一个数字在排序数组中出现的次数。
+
+示例一：
+
+```java
+输入: nums = [5,7,7,8,8,10], target = 8
+输出: 2
+```
+
+示例二：
+
+```java
+输入: nums = [5,7,7,8,8,10], target = 6
+输出: 0
+```
+
+代码：
+
+```java
+// 暴力美学
+class Solution {
+    public int search(int[] nums, int target) {
+        int res = 0;
+        for(int i =0; i < nums.length;i++){
+            if(nums[i] == target){
+                res++;
+            }
+        }
+        return res;
+    }
+}
+// 二分查找
+class Solution {
+    public int search(int[] nums, int target) {
+        // 搜索右边界
+        int left = 0, right = nums.length - 1;
+        while(left <= right){
+            int mid = left + (right - left) / 2;
+            if(nums[mid] <= target){
+                left = mid + 1;
+            }else{
+                right = mid - 1;
+            }
+        }
+        // 右边界
+        int res_right = left;
+        // 此时right的指针应该指向右边界的左侧一个，如果此时不等于target，则数组中无target
+        if(right >= 0 && nums[right] != target)
+            return 0;
+        // 搜索左边界
+        left = 0;
+        right = nums.length - 1;
+        while(left <= right){
+            int mid = left + (right - left) / 2;
+            if(nums[mid] < target){
+                left = mid + 1;
+            }else{
+                right = mid - 1;
+            }
+        }
+        // 左边界
+        int res_left = right;
+        // 左边界为target左侧的值，右边界为target右侧的值，因此是右边界-左边界 - 1
+        return res_right - res_left - 1;
+    }
+}
+// 二分查找右边界代码封装，简化代码
+class Solution {
+    public int search(int[] nums, int target) {
+        // 此时left为target的第一个值
+        int left = helper(nums, target - 1);
+        // 此时right为target的右侧第一个值
+        int right = helper(nums, target);
+        return right - left;
+    }
+    public int helper(int[] nums, int target){
+        int left = 0, right = nums.length - 1;
+        while(left <= right){
+            int mid = left + (right - left) / 2;
+            if(nums[mid] > target){
+                right = mid - 1;
+            }else{
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+}
+```
+
+### [53 - II. 0～n-1中缺失的数字](https://leetcode.cn/problems/que-shi-de-shu-zi-lcof/)
+
+>一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字。
+
+示例一：
+
+```java
+输入: [0,1,3]
+输出: 2
+```
+
+示例二：
+
+```java
+输入: [0,1,2,3,4,5,6,7,9]
+输出: 8
+```
+
+代码：
+
+```java
+// 二分法
+class Solution {
+    public int missingNumber(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while(left <= right){
+            int mid = left + (right - left) / 2;
+            if(nums[mid] == mid){
+                left = mid + 1;
+            }else{
+                right = mid - 1;
+            }
+        }
+        return left;
+    }
+}
+// 哈希集合
+class Solution {
+    public int missingNumber(int[] nums) {
+        Set<Integer> res = new HashSet<Integer>();
+        //将数组中所有值加入到集合中
+        for(int i = 0; i < nums.length; i++){
+            res.add(nums[i]);
+        }
+        int missing = -1;
+        // 从0-nums.length开始遍历
+        for(int i = 0; i <= nums.length;i++){
+            // 如果集合中不包含i值时，直接返回
+            if(!res.contains(i)){
+                missing = i;
+                break;
+            }
+        }
+        return missing;
+    }
+}
+// 直接遍历，暴力美学
+class Solution {
+    public int missingNumber(int[] nums) {
+        for(int i =0; i < nums.length; i++){
+            if(nums[i] != i){
+                return i;
+            }
+        }
+        // 如果数组中的值与索引一一对应，则缺少num.length这个zhi
+        return nums.length;
+    }
+}
+```
+
+
+
+### [58 - II. 左旋转字符串](https://leetcode.cn/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/)
+
+> 字符串的左旋转操作是把字符串前面的若干个字符转移到字符串的尾部。请定义一个函数实现字符串左旋转操作的功能。比如，输入字符串"abcdefg"和数字2，该函数将返回左旋转两位得到的结果"cdefgab"。
+
+示例一：
+
+```java
+输入: s = "abcdefg", k = 2
+输出: "cdefgab"
+```
+
+示例二：
+
+```java
+输入: s = "lrloseumgh", k = 6
+输出: "umghlrlose"
+```
+
+代码：
+
+```java
+// 使用切片函数
+class Solution {
+    public String reverseLeftWords(String s, int n) {
+        return s.substring(n,s.length()) + s.substring(0,n);
+    }
+}
+// 暴力解法，自己做的，果然复杂了，象的太多了
+class Solution {
+    public String reverseLeftWords(String s, int n) {
+        StringBuilder result = new StringBuilder();
+        char[] sc = s.toCharArray();
+        // 左旋以后的值先加入
+        for(int i = n; i < sc.length; i++){
+            result.append(sc[i]);
+        }
+        // 再将左旋的值加入
+        for(int i = 0; i < n; i++){
+            result.append(sc[i]);
+        }
+        return result.toString();
+    }
+}
+// 使用StringBuilder，果然别人做的简单
+class Solution {
+    public String reverseLeftWords(String s, int n) {
+        StringBuilder result = new StringBuilder();
+        for(int i = n; i < s.length(); i++){
+            result.append(s.charAt(i));
+        }
+        for(int i = 0; i < n; i++){
+            result.append(s.charAt(i));
+        }
+        return result.toString();
+    }
+}
+// 使用取余运算，简化代码
+class Solution {
+    public String reverseLeftWords(String s, int n) {
+        StringBuilder result = new StringBuilder();
+        for(int i = n; i < s.length() + n; i++){
+            result.append(s.charAt(i%s.length()));
+        }
+        return result.toString();
+    }
+}
+//只能使用String的方法，进行字符串拼接，直接使用取余的方法简化代码
+class Solution {
+    public String reverseLeftWords(String s, int n) {
+        String res = "";
+        for(int i = n; i < n+s.length(); i++){
+            res += s.charAt(i % s.length());
+        }
+        return res;
+    }
+}
+```
+
+
+
 ## 中等
 
 ### [04. 二维数组中的查找](https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/)
@@ -6092,6 +6336,55 @@ class Solution {
             return ans;
         }
         return -ans;
+    }
+}
+```
+
+### [002. 二进制加法](https://leetcode.cn/problems/JFETK5/)
+
+> 给定两个 01 字符串 `a` 和 `b` ，请计算它们的和，并以二进制字符串的形式输出。
+>
+> 输入为 **非空** 字符串且只包含数字 `1` 和 `0`。
+
+示例一：
+
+```java
+输入: a = "11", b = "10"
+输出: "101"
+```
+
+示例二：
+
+```java
+输入: a = "1010", b = "1011"
+输出: "10101"
+```
+
+代码：
+
+```java
+class Solution {
+    public String addBinary(String a, String b) {
+        StringBuffer ans = new StringBuffer();
+        int i = a.length() - 1;
+        int j = b.length() - 1;
+        int carry = 0;
+        while(i >= 0 || j >= 0){
+            int sum = carry;	// 把进位计算在本轮内
+            if(i >= 0){
+                sum += a.charAt(i--) - '0';
+            }
+            if(j >= 0){
+                sum += b.charAt(j--) - '0';
+            }
+            carry = sum / 2;	//进位
+            ans.append(sum % 2);	//当前位
+        }
+        // 最高位仍有进位时
+        if(carry != 0){
+            ans.append(carry);
+        }
+        return ans.reverse().toString();	//翻转
     }
 }
 ```
