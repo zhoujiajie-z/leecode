@@ -5699,10 +5699,13 @@ class Solution {
         while(left < right){
             int mid = left + (right - left) / 2;
             if(numbers[mid] > numbers[right]){
+                //证明mid前面一定是有序的，最小值在mid后面，可以缩小查找范围，放弃前半部分
                 left = mid + 1;
-            }else if(numbers[mid] > numbers[left]){
+            }else if(numbers[mid] < numbers[right]){
+                // mid后半部分一定是有序的，但是不确定mid是否是最小值
                 right = mid;
             }else{
+                // mid值与right值相等时，并不能确定分界点在mid前还是mid后，暴力从右到左遍历，缩小范围
                 right = right - 1;
             }
         }
@@ -5816,6 +5819,124 @@ class MinStack {
     
     public int min() {
         return min.peek();
+    }
+}
+```
+
+
+
+### [32 - II. 从上到下打印二叉树 II](https://leetcode.cn/problems/cong-shang-dao-xia-da-yin-er-cha-shu-ii-lcof/)
+
+> 从上到下按层打印二叉树，同一层的节点按从左到右的顺序打印，每一层打印到一行。
+
+示例：
+
+```java
+输入：[3,9,20,null,null,15,7]
+输出：[
+  [3],
+  [9,20],
+  [15,7]
+]
+```
+
+代码：
+
+```java
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> res = new ArrayList<List<Integer>>();
+        if(root == null)    return res;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while(!queue.isEmpty()){
+            // 列表存放当前层的节点值
+            List<Integer> list = new ArrayList<>();
+            // cur的值就是当前层有几个节点
+            int cur = queue.size();
+            // 对该层节点进行遍历，存放到该层的列表中
+            for(int i = 0; i < cur; i++){
+                TreeNode node = queue.poll();
+                // 将节点值存入到列表中
+                list.add(node.val);
+                // 将该节点的左右孩子加入到队列中
+                if(node.left != null)   queue.offer(node.left);
+                if(node.right != null)   queue.offer(node.right);
+            }
+            // 将该层的列表加入到总列表中
+            res.add(list);
+        }
+        return res;
+    }
+}
+```
+
+
+
+### [ 50. 第一个只出现一次的字符](https://leetcode.cn/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/)
+
+> 在字符串 s 中找出第一个只出现一次的字符。如果没有，返回一个单空格。 s 只包含小写字母。
+
+示例一：
+
+```java
+输入：s = "abaccdeff"
+输出：'b'
+```
+
+示例二：
+
+```java
+输入：s = "" 
+输出：' '
+```
+
+代码：
+
+```java
+// 使用哈希表，两次遍历，时间复杂度O(n),
+class Solution {
+    public char firstUniqChar(String s) {
+        HashMap<Character, Boolean> res = new HashMap<Character, Boolean>();
+        for(char c : s.toCharArray()){
+            // 如果第一次放入，则对应的value值为true，一旦多次放入，value值被false覆盖
+            res.put(c,!res.containsKey(c));
+        }
+        for(char c : s.toCharArray()){
+            // 找到value值为true的，证明该值只加入到哈希表中一次，即只有一个
+            if(res.get(c)){
+                return c;
+            }
+        }
+        return ' ';
+    }
+}
+// 使用哈希表存储索引
+class Solution {
+    public char firstUniqChar(String s) {
+        Map<Character, Integer> position = new HashMap<Character, Integer>();
+        int n = s.length();
+        for (int i = 0; i < n; ++i) {
+            char ch = s.charAt(i);
+            // 如果该字符出现多次，对应值为-1
+            if (position.containsKey(ch)) {
+                position.put(ch, -1);
+            } else {
+                // 如果第一次出现则对应值为对应的索引值
+                position.put(ch, i);
+            }
+        }
+        int first = n;
+        // 遍历哈希映射中的所有值
+        for (Map.Entry<Character, Integer> entry : position.entrySet()) {
+            int pos = entry.getValue();
+            // 找到不为-1的最小值
+            if (pos != -1 && pos < first) {
+                first = pos;
+            }
+        }
+        // 如果哈希映射中的所有值均为−1，就返回空格
+        return first == n ? ' ' : s.charAt(first);
     }
 }
 ```
@@ -5978,7 +6099,7 @@ class Solution {
                 return i;
             }
         }
-        // 如果数组中的值与索引一一对应，则缺少num.length这个zhi
+        // 如果数组中的值与索引一一对应，则缺少nums.length这个值
         return nums.length;
     }
 }
@@ -6127,12 +6248,14 @@ class Solution {
 //Z字形查找：O(N+M)
 class Solution {
     public boolean findNumberIn2DArray(int[][] matrix, int target) {
+        // 从右上角开始判断
         int i = matrix.length-1;
         int j = 0;
         while(i >= 0 && j < matrix[0].length){
+            // 如果当前位置比target大，则向左侧移动
             if(matrix[i][j] > target){
                 i--;
-            }else if(matrix[i][j] < target){
+            }else if(matrix[i][j] < target){	//如果比target小则向下移动
                 j++;
             }else{
                 return true;
@@ -6145,6 +6268,7 @@ class Solution {
 class Solution {
     public boolean findNumberIn2DArray(int[][] matrix, int target) {
         for(int[] row : matrix){
+            // 对每一行进行二分查找
             int index = search(row, target);
             if(index >= 0){
                 return true;
@@ -6166,6 +6290,112 @@ class Solution {
             }
         }
         return -1;
+    }
+}
+```
+
+
+
+### [32 - I. 从上到下打印二叉树](https://leetcode.cn/problems/cong-shang-dao-xia-da-yin-er-cha-shu-lcof/)
+
+> 从上到下打印出二叉树的每个节点，同一层的节点按照从左到右的顺序打印。
+
+示例一：
+
+```java
+输入：[3,9,20,null,null,15,7]
+输出：[3,9,20,15,7]
+```
+
+代码：
+
+```java
+class Solution {
+    public int[] levelOrder(TreeNode root) {
+        // 当树的根节点为空，则直接返回空列表 []
+        if(root == null)    return new int[0];
+        // 存放要访问的节点
+        Queue<TreeNode> queue = new LinkedList<>();
+        ArrayList<Integer> ans = new ArrayList<>();
+        // 将根节点加入队列中
+        queue.add(root);
+        while(!queue.isEmpty()){
+            //将队列第一个节点取出来
+            TreeNode node = queue.poll();
+            // 将节点的值添加到列表中
+            ans.add(node.val);
+            // 将节点的左孩子加入队列
+            if(node.left != null)    queue.add(node.left);
+            // 将节点的右孩子加入队列
+            if(node.right != null)    queue.add(node.right);
+        }
+        int[] res = new int[ans.size()];
+        for(int i = 0; i < ans.size(); i++){
+            res[i] = ans.get(i);
+        }
+        return res;
+    }
+}
+```
+
+### [32 - III. 从上到下打印二叉树 III](https://leetcode.cn/problems/cong-shang-dao-xia-da-yin-er-cha-shu-iii-lcof/)
+
+> 请实现一个函数按照之字形顺序打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右到左的顺序打印，第三行再按照从左到右的顺序打印，其他行以此类推。
+
+示例：
+
+```java
+输入: [3,9,20,null,null,15,7]
+输出：[
+  [3],
+  [20,9],
+  [15,7]
+]
+```
+
+思路：
+
+>规定二叉树的根节点为第 00 层，如果当前层数是偶数，**从左至右**输出当前层的节点值，否则，**从右至左**输出当前层的节点值.对树进行逐层遍历，用队列维护当前层的所有元素，当队列不为空的时候，求得当前队列的长度size，每次从队列中取出size 个元素进行拓展，然后进行下一次迭代。
+>利用「双端队列」的数据结构来维护当前层节点值输出的顺序,双端队列是一个可以在队列任意一端插入元素的队列。在广度优先搜索遍历当前层节点拓展下一层节点的时候我们仍然从左往右按顺序拓展，但是对当前层节点的存储我们维护一个变量 isOrderLeft 记录是从左至右还是从右至左的
+
+代码：
+
+```java
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> ans = new LinkedList<List<Integer>>();
+        if (root == null) {
+            return ans;
+        }
+        Queue<TreeNode> nodeQueue = new ArrayDeque<TreeNode>();
+        nodeQueue.offer(root);
+        // 判断当前层是从左至右还是从右至左的
+        boolean isOrderLeft = true;
+        while (!nodeQueue.isEmpty()) {
+            // 利用「双端队列」的数据结构来维护当前层节点值输出的顺序
+            Deque<Integer> levelList = new LinkedList<Integer>();
+            int size = nodeQueue.size();
+            for (int i = 0; i < size; ++i) {
+                TreeNode curNode = nodeQueue.poll();
+                if (isOrderLeft) {
+                    // 如果从左至右，我们每次将被遍历到的元素插入至双端队列的末尾
+                    levelList.offerLast(curNode.val);
+                } else {
+                    // 如果从右至左，我们每次将被遍历到的元素插入至双端队列的头部
+                    levelList.offerFirst(curNode.val);
+                }
+                if (curNode.left != null) {
+                    nodeQueue.offer(curNode.left);
+                }
+                if (curNode.right != null) {
+                    nodeQueue.offer(curNode.right);
+                }
+            }
+            ans.add(new LinkedList<Integer>(levelList));
+            // 下一层反方向添加
+            isOrderLeft = !isOrderLeft;
+        }
+        return ans;
     }
 }
 ```
