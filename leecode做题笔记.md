@@ -5767,6 +5767,97 @@ class Solution {
 
 
 
+### [27. 二叉树的镜像](https://leetcode.cn/problems/er-cha-shu-de-jing-xiang-lcof/)
+
+> 请完成一个函数，输入一个二叉树，该函数输出它的镜像。
+
+示例一：
+
+```java
+输入：root = [4,2,7,1,3,6,9]
+输出：[4,7,2,9,6,3,1]
+```
+
+代码：
+
+```java
+// 递归：O(N)
+class Solution {
+    public TreeNode mirrorTree(TreeNode root) {
+        if(root == null)    return null;
+        // 初始化节点tmp ，用于暂存root 的左子节点
+        TreeNode temp = root.left;
+        // 开启递归右子节点 mirrorTree(root.right)，并将返回值作为root的左子节点
+        root.left = mirrorTree(root.right);
+        // 开启递归左子节点mirrorTree(tmp) ，并将返回值作为root 的右子节点
+        root.right = mirrorTree(temp);
+        return root;
+    }
+}
+// 使用辅助栈：O(n)
+class Solution {
+    public TreeNode mirrorTree(TreeNode root) {
+        // 当root为空时，直接返回null
+        if(root == null)     return null;
+        // 利用栈（或队列）遍历树的所有节点node, 并交换每个node的左 / 右子节点
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(root);
+        while(!stack.isEmpty()){
+            TreeNode node = stack.pop();
+            // 将node的左右子树入栈
+            if(node.left != null)   stack.push(node.left);
+            if(node.right != null)  stack.push(node.right);
+            // 交换node的左右节点
+            TreeNode temp = node.left;
+            node.left = node.right;
+            node.right = temp;
+        }
+        return root;
+    }
+}
+```
+
+### [28. 对称的二叉树](https://leetcode.cn/problems/dui-cheng-de-er-cha-shu-lcof/)
+
+> 请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
+
+示例一：
+
+```java
+输入：root = [1,2,2,3,4,4,3]
+输出：true
+```
+
+示例二：
+
+```java
+输入：root = [1,2,2,null,3,null,3]
+输出：false
+```
+
+代码：
+
+```java
+// 递归：O(n)
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        // 若根节点root为空，则直接返回true
+        if(root == null)    return true;
+        return recur(root.left, root.right);
+    }
+    public boolean recur(TreeNode A, TreeNode B){
+        // 当L和R同时越过叶节点： 此树从顶至底的节点都对称，因此返回true
+        if(A== null && B == null)   return true;
+        // 当L或R中只有一个越过叶节点或当节点L值不等于节点R的值： 此树不对称，因此返回false
+        if(A == null || B == null || A.val != B.val)    return false;
+        // 判断两节点L.left和R.right 是否对称, 判断两节点L.right和R.left是否对称
+        return recur(A.left, B.right) && recur(A.right, B.left);
+    }
+}
+```
+
+
+
 ### [30. 包含min函数的栈](https://leetcode.cn/problems/bao-han-minhan-shu-de-zhan-lcof/)
 
 > 定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。
@@ -6296,6 +6387,51 @@ class Solution {
 
 
 
+### [26. 树的子结构](https://leetcode.cn/problems/shu-de-zi-jie-gou-lcof/)
+
+> 输入两棵二叉树A和B，判断B是不是A的子结构。(约定空树不是任意一个树的子结构)
+> B是A的子结构， 即 A中有出现和B相同的结构和节点值。
+
+示例一：
+
+```java
+输入：A = [1,2,3], B = [3,1]
+输出：false
+```
+
+示例一：
+
+```java
+输入：A = [3,4,5,1,2], B = [4,1]
+输出：true
+```
+
+代码：
+
+```java
+class Solution {
+    public boolean isSubStructure(TreeNode A, TreeNode B) {
+        // 当树A为空或树B为空时，直接返回false
+        if(A == null || B == null){
+            return false;
+        }
+        // 节点A为根节点的子树包含树B, 树B是树A左子树的子结构, 树B是树A右子树的子结构
+        return recur(A, B) || isSubStructure(A.left, B) || isSubStructure(A.right, B);
+    }
+
+    public boolean recur(TreeNode A, TreeNode B){
+        // 当节点 B 为空：说明树 B 已匹配完成
+        if(B == null) return true;
+        // 当节点 A 为空：说明已经越过树 AA 叶子节点;当节点 AA 和 BB 的值不同：说明匹配失败
+        if(A == null || A.val != B.val)  return false;
+        // 判断 A 和 B 的左子节点是否相等, 判断 A 和 B 的右子节点是否相等
+        return recur(A.left,B.left) && recur(A.right, B.right);
+    }
+}
+```
+
+
+
 ### [32 - I. 从上到下打印二叉树](https://leetcode.cn/problems/cong-shang-dao-xia-da-yin-er-cha-shu-lcof/)
 
 > 从上到下打印出二叉树的每个节点，同一层的节点按照从左到右的顺序打印。
@@ -6483,6 +6619,54 @@ class Solution {
         // 当pre到达最后一个原链表最后一个时，此时cur到达新链表最后一位，cur.next==null,不进入下一次循环，pre.next没有赋值
         pre.next = null;
         return res;
+    }
+}
+```
+
+
+
+### [63. 股票的最大利润](https://leetcode.cn/problems/gu-piao-de-zui-da-li-run-lcof/)
+
+> 假设把某股票的价格按照时间先后顺序存储在数组中，请问买卖该股票一次可能获得的最大利润是多少？
+
+示例一：
+
+```java
+输入: [7,1,5,3,6,4]
+输出: 5
+解释: 在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格。
+```
+
+示例二：
+
+```java
+输入: [7,6,4,3,1]
+输出: 0
+解释: 在这种情况下, 没有交易完成, 所以最大利润为 0。
+```
+
+代码：
+
+```java
+// 动态规划：O(n)
+class Solution {
+    public int maxProfit(int[] prices) {
+        if(prices.length == 0){
+            return 0;
+        }
+        // 把第一天的价格当成是初始最小值,第一天无卖出利润为0
+        int min = prices[0], profit = 0;
+        // 遍历每天的结果，寻找最大利润
+        for(int i = 1; i < prices.length; i++){
+            // 更新最低价格（买入价），最低价格应该拿当前的最低价格跟今天的价格对比
+            if(prices[i] < min){
+                min = prices[i];
+            }
+            // 更新最大利润，最大利润应该是当前的最大利润与（当前价格 - 最低价格（买入价））对比的最大值
+            profit = Math.max(profit, prices[i] - min);
+        }
+        return profit;
     }
 }
 ```
