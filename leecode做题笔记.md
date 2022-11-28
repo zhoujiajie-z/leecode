@@ -5964,6 +5964,39 @@ class Solution {
 
 
 
+### [42. 连续子数组的最大和](https://leetcode.cn/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)
+
+> 输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
+>
+> 要求时间复杂度为O(n)。
+
+示例一：
+
+```java
+输入: nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出: 6
+解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+```
+
+代码：
+
+```java
+// 动态规划
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int res = nums[0];
+        for(int i = 1; i < nums.length; i++){
+            // 当dp[i−1] > 0 时：执行dp[i]=dp[i−1]+nums[i], 当 dp[i−1]≤0 时：执行dp[i]=nums[i]
+            nums[i] += Math.max(nums[i-1], 0);
+            res = Math.max(nums[i], res);
+        }
+        return res;
+    }
+}
+```
+
+
+
 ### [ 50. 第一个只出现一次的字符](https://leetcode.cn/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/)
 
 > 在字符串 s 中找出第一个只出现一次的字符。如果没有，返回一个单空格。 s 只包含小写字母。
@@ -6618,6 +6651,143 @@ class Solution {
         }
         // 当pre到达最后一个原链表最后一个时，此时cur到达新链表最后一位，cur.next==null,不进入下一次循环，pre.next没有赋值
         pre.next = null;
+        return res;
+    }
+}
+```
+
+
+
+### [46. 把数字翻译成字符串](https://leetcode.cn/problems/ba-shu-zi-fan-yi-cheng-zi-fu-chuan-lcof/)
+
+> 给定一个数字，我们按照如下规则把它翻译为字符串：0 翻译成 “a” ，1 翻译成 “b”，……，11 翻译成 “l”，……，25 翻译成 “z”。一个数字可能有多个翻译。请编程实现一个函数，用来计算一个数字有多少种不同的翻译方法。
+
+示例一：
+
+```java
+输入: 12258
+输出: 5
+解释: 12258有5种不同的翻译，分别是"bccfi", "bwfi", "bczi", "mcfi"和"mzi"
+```
+
+代码：
+
+```java
+// 动态规划
+class Solution {
+    public int translateNum(int num) {
+        String src = String.valueOf(num);
+        int length = src.length();
+        if(length < 2){
+            return length;
+        }
+        char[] array = src.toCharArray();
+        int[] dp = new int[length];
+        dp[0] = 1;
+        for(int i = 1; i < length; i++){
+            dp[i] = dp[i-1];
+            int cur = 10 * (array[i-1] - '0') + array[i] - '0';
+            if(cur >= 10 && cur <= 25){
+                if(i == 1){
+                    dp[i]++;
+                }else{
+                    dp[i] += dp[i-2];
+                }
+            }
+        }
+        return dp[length-1];
+    }
+}
+```
+
+### [47. 礼物的最大价值](https://leetcode.cn/problems/li-wu-de-zui-da-jie-zhi-lcof/)
+
+> 在一个 m*n 的棋盘的每一格都放有一个礼物，每个礼物都有一定的价值（价值大于 0）。你可以从棋盘的左上角开始拿格子里的礼物，并每次向右或者向下移动一格、直到到达棋盘的右下角。给定一个棋盘及其上面的礼物的价值，请计算你最多能拿到多少价值的礼物？
+
+示例一：
+
+```java
+输入: 
+[
+  [1,3,1],
+  [1,5,1],
+  [4,2,1]
+]
+输出: 12
+解释: 路径 1→3→5→2→1 可以拿到最多价值的礼物
+```
+
+代码：
+
+```java
+// 动态规划：O(MN),O(1)
+class Solution {
+    public int maxValue(int[][] grid) {
+        for(int i = 0; i < grid.length; i++){
+            for(int j = 0; j < grid[0].length; j++){
+                if(i == 0 && j == 0)    continue;
+                // 矩阵第一行元素，只可从左边到达
+                else if(i == 0) grid[i][j] += grid[i][j-1];
+                // 为矩阵第一列元素，只可从上边到达
+                else if(j == 0) grid[i][j] += grid[i-1][j];
+                // 可从左边或上边到达
+                else grid[i][j] += Math.max(grid[i-1][j], grid[i][j-1]);
+            }
+        }
+        return grid[grid.length-1][grid[0].length-1];
+    }
+}
+```
+
+### [48. 最长不含重复字符的子字符串](https://leetcode.cn/problems/zui-chang-bu-han-zhong-fu-zi-fu-de-zi-zi-fu-chuan-lcof/)
+
+> 请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。
+
+示例一：
+
+```java
+输入: "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+```
+
+示例二：
+
+```java
+输入: "bbbbb"
+输出: 1
+解释: 因为无重复字符的最长子串是 "b"，所以其长度为 1。
+```
+
+代码：
+
+```java
+// 动态规划+哈希表：O(N),O(1)
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        Map<Character, Integer> dic = new HashMap<>();
+        int res = 0, tmp = 0;
+        for(int j = 0; j < s.length(); j++){
+            int i = dic.getOrDefault(s.charAt(j), -1);	// 获取索引 i
+            dic.put(s.charAt(j), j);	// 更新哈希表
+            tmp = tmp < j-i ? tmp+1 : j - i;	// dp[j - 1] -> dp[j]
+            res = Math.max(res,tmp);	// max(dp[j - 1], dp[j])
+        }
+        return res;
+    }
+}
+// 双指针+哈希表：O(N), O(1)
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        Map<Character, Integer> dic = new HashMap<>();
+        int res = 0, i = -1;
+        for(int j = 0; j < s.length(); j++){
+            if(dic.containsKey(s.charAt(j))){
+                i = Math.max(i, dic.get(s.charAt(j)));	//更新左指针i
+            }
+            dic.put(s.charAt(j),j);	// 哈希表记录
+            res = Math.max(res, j - i);	// 更新结果
+        }
         return res;
     }
 }
