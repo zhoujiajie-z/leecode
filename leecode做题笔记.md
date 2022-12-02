@@ -6833,6 +6833,137 @@ class Solution {
 
 
 
+### [12. 矩阵中的路径](https://leetcode.cn/problems/ju-zhen-zhong-de-lu-jing-lcof/)
+
+> 给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。
+> 单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用
+
+示例一：
+
+```java
+输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+输出：true
+```
+
+示例二：
+
+```java
+输入：board = [["a","b"],["c","d"]], word = "abcd"
+输出：false
+```
+
+代码：
+
+```java
+// DFS + 剪枝：O(MN3^k), O(K)
+class Solution {
+    public boolean exist(char[][] board, String word) {
+        char[] words = word.toCharArray();
+        // 循环遍历走每个点，如果找到了真正的起点，就不会再往后遍历
+        for(int i = 0; i < board.length; i++){
+            for(int j = 0; j < board[0].length; j++){
+                if(dfs(board, words, i, j, 0))  return true;	// 如果找到了对应的单词，直接返回
+            }
+        }
+        return false;	//代码到这一步说明没找到，直接返回flase
+    }
+
+    public boolean dfs(char[][] board, char[] word, int i, int j, int k){
+        if(i < 0 || j < 0 || i >= board.length || j >= board[0].length || board[i][j] != word[k])
+            return false;	//递归flase终止条件(剪枝)
+        if(k == word.length - 1)    return true;	//递归true终止条件
+        // 如果一个dfs到了这一步，说明找到了这个k对应border中的结果
+        board[i][j] = '\0';	//已经加入的数据复制空字符，这样可以防止重复调用(只要是非字母的字符都可以)
+        // 从在border中找到第k个字符处继续上下左右寻找，进入递归
+        boolean res = dfs(board, word, i-1, j, k+1) || dfs(board, word, i+1, j, k+1) || dfs(board, word, i, j-1, k+1) || dfs(board, word, i, j+1, k+1);
+        // 如果k不对劲，要回溯，将这一步的k的字符重新交给border，防止后续递归需要
+        board[i][j] = word[k];
+        return res;
+    }
+}
+```
+
+### [13. 机器人的运动范围](https://leetcode.cn/problems/ji-qi-ren-de-yun-dong-fan-wei-lcof/)
+
+> 地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
+
+示例一：
+
+```java
+输入：m = 2, n = 3, k = 1
+输出：3
+```
+
+示例二：
+
+```java
+输入：m = 3, n = 1, k = 0
+输出：1
+```
+
+代码：
+
+```java
+// dfs
+class Solution {
+    int res = 0;
+    public int movingCount(int m, int n, int k) {
+        boolean[][] arr = new boolean[m][n];
+        dfs(0, 0, m, n, k, arr);
+        return res;
+    }
+
+    public void dfs(int i, int j, int m, int n, int k, boolean[][] arr){
+        // 计算两个坐标数字的和
+        int sum = i % 10 + i / 10 + j % 10 + j / 10;
+        // i >= m || j >= n是边界条件的判断，k < sum(i, j)判断当前格子坐标是否满足条件
+        // visited[i][j]判断这个格子是否被访问过
+        if(i >= m || j >= n || arr[i][j] || sum > k){
+            return;
+        }
+        //标注这个格子被访问过
+        arr[i][j] = true;
+        res++;
+        //把当前格子下边格子的坐标加入到队列中
+        dfs(i+1, j, m, n, k, arr);
+        //把当前格子右边格子的坐标加入到队列中
+        dfs(i, j+1, m, n, k, arr);
+    }
+}
+// bfs
+class Solution {
+    public int movingCount(int m, int n, int k) {
+        //临时变量visited记录格子是否被访问过
+        boolean[][] arr = new boolean[m][n];
+        int res = 0;
+        //创建一个队列，保存的是访问到的格子坐标，是个二维数组
+        Queue<int[]> queue = new LinkedList<>();
+        //从左上角坐标[0,0]点开始访问，add方法表示把坐标点加入到队列的队尾
+        queue.add(new int[]{0, 0});
+        while(queue.size() > 0){
+            //这里的poll()函数表示的是移除队列头部元素，因为队列是先进先出，从尾部添加，从头部移除
+            int[] cur = queue.poll();
+            int i = cur[0], j = cur[1];
+            //计算两个坐标数字的和
+            int sum = i % 10 + i / 10 + j %  10 + j / 10;
+            // i >= m || j >= n是边界条件的判断，k < sum(i, j)判断当前格子坐标是否满足条件
+            // visited[i][j]判断这个格子是否被访问过
+            if(i >= m || j >= n || arr[i][j] || sum > k) continue;
+            //标注这个格子被访问过
+            arr[i][j] = true;
+            res++;
+             //把当前格子下边格子的坐标加入到队列中
+            queue.offer(new int[]{i+1, j});
+            //把当前格子右边格子的坐标加入到队列中
+            queue.offer(new int[]{i, j+1});
+        }
+        return res;
+    }
+}
+```
+
+
+
 ### [26. 树的子结构](https://leetcode.cn/problems/shu-de-zi-jie-gou-lcof/)
 
 > 输入两棵二叉树A和B，判断B是不是A的子结构。(约定空树不是任意一个树的子结构)
@@ -6845,7 +6976,7 @@ class Solution {
 输出：false
 ```
 
-示例一：
+示例二：
 
 ```java
 输入：A = [3,4,5,1,2], B = [4,1]
