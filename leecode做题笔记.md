@@ -5777,6 +5777,73 @@ class Solution {
 
 
 
+### [21. 调整数组顺序使奇数位于偶数前面](https://leetcode.cn/problems/diao-zheng-shu-zu-shun-xu-shi-qi-shu-wei-yu-ou-shu-qian-mian-lcof/)
+
+> 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
+
+示例一：
+
+```java
+输入：nums = [1,2,3,4]
+输出：[1,3,2,4] 
+注：[3,1,2,4] 也是正确的答案之一。
+```
+
+思路：
+
+> 双指针：
+>
+> 考虑定义双指针 i, j分列数组左右两端，循环执行：
+>
+> 1. 指针 i从左向右寻找偶数；
+> 2. 指针 j从右向左寻找奇数；
+> 3. 将 偶数 nums[i] 和 奇数 nums[j] 交换
+>
+> 可始终保证： 指针 i左边都是奇数，指针 j 右边都是偶数 
+
+代码：
+
+```java
+// 双端队列
+class Solution {
+    public int[] exchange(int[] nums) {
+        Deque<Integer> deque = new ArrayDeque<>();
+        for(int num : nums){
+            if(num % 2 == 0){
+                deque.offer(num);
+            }else{
+                deque.addFirst(num);
+            }
+        }
+        int[] res = new int[nums.length];
+        for(int i = 0; i < nums.length; i++){
+            res[i] = deque.poll();
+        }
+        return res;
+    }
+}
+// 双指针:O(n),O(1)
+class Solution {
+    public int[] exchange(int[] nums) {
+        int i = 0, j = nums.length - 1;
+        while(i < j){
+            while(i < j && nums[i] % 2 == 1){
+                i++;
+            }
+            while(i < j && nums[j] % 2 == 0){
+                j--;
+            }
+            int temp = nums[i];
+            nums[i] = nums[j];
+            nums[j] = temp;
+        }
+        return nums;
+    }
+}
+```
+
+
+
 ### [22. 链表中倒数第k个节点](https://leetcode.cn/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof/)
 
 >输入一个链表，输出该链表中倒数第k个节点。为了符合大多数人的习惯，本题从1开始计数，即链表的尾节点是倒数第1个节点。
@@ -5872,6 +5939,47 @@ class Solution {
         head.next.next = head;
         head.next = null;
         return newHead;
+    }
+}
+```
+
+### [25. 合并两个排序的链表](https://leetcode.cn/problems/he-bing-liang-ge-pai-xu-de-lian-biao-lcof/)
+
+>输入两个递增排序的链表，合并这两个链表并使新链表中的节点仍然是递增排序的。
+
+示例一：
+
+```java
+输入：1->2->4, 1->3->4
+输出：1->1->2->3->4->4
+```
+
+代码：
+
+```java
+// 双指针
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        ListNode head = new ListNode(0), cur = head;
+        while(l1 != null && l2 != null){
+            if(l1.val < l2.val){
+                cur.next = l1;
+                l1 = l1.next;
+            }else{
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+        }
+        if(l1 != null){
+            cur.next = l1;
+            l1 = l1.next;
+        }
+        if(l2 != null){
+            cur.next = l2;
+            l2 = l2.next;
+        }
+        return head.next;
     }
 }
 ```
@@ -6178,6 +6286,89 @@ class Solution {
 
 
 
+### [52. 两个链表的第一个公共节点](https://leetcode.cn/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/)
+
+> 输入两个链表，找出它们的第一个公共节点。
+
+示例一：
+
+```java
+输入：intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
+输出：Reference of the node with value = 8
+输入解释：相交节点的值为 8 （注意，如果两个列表相交则不能为 0）。从各自的表头开始算起，链表 A 为 [4,1,8,4,5]，链表 B 为 [5,0,1,8,4,5]。在 A 中，相交节点前有 2 个节点；在 B 中，相交节点前有 3 个节点。
+```
+
+示例二：
+
+```java
+输入：intersectVal = 2, listA = [0,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
+输出：Reference of the node with value = 2
+输入解释：相交节点的值为 2 （注意，如果两个列表相交则不能为 0）。从各自的表头开始算起，链表 A 为 [0,9,1,2,4]，链表 B 为 [3,2,4]。在 A 中，相交节点前有 3 个节点；在 B 中，相交节点前有 1 个节点。
+```
+
+思路：
+
+>方法一：哈希表
+>判断两个链表是否相交，可以使用哈希集合存储链表节点。
+>首先遍历链表headA，并将链表headA 中的每个节点加入哈希集合中。然后遍历链表headB，对于遍历到的每个节点，判断该节点是否在哈希集合中：
+>如果当前节点不在哈希集合中，则继续遍历下一个节点；
+>如果当前节点在哈希集合中，则后面的节点都在哈希集合中，即从当前节点开始的所有节点都是两个链表的公共节点，因此在链表 headB 中遍历到的第一个在哈希集合中的节点就是两个链表的第一个公共节点，返回该节点
+>
+>方法二：双指针
+>使用双指针的方法，可以将空间复杂度降至O(1)。
+>只有当链表headA 和headB 都不为空时，两个链表才可能相交。因此首先判断链表headA 和BheadB 是否为空，如果其中至少有一个链表为空，则两个链表一定不相交，返回null。
+>当链表headA 和headB 都不为空时，创建两个指针pA 和 pB，初始时分别指向两个链表的头节点headA 和headB，然后将两个指针依次遍历两个链表的每个节点。具体做法如下：
+>每步操作需要同时更新指针pA和pB。
+>如果指针pA不为空，则将指针pA移到下一个节点；如果指针pB不为空，则将指针pB移到下一个节点。
+>如果指针pA为空，则将指针pA移到链表headB的头节点；如果指针pB为空，则将指针pB移到链表headA的头节点。
+>当指针pA和pB指向同一个节点或者都为空时，返回它们指向的节点或者null
+>
+>双指针证明：
+>![image-20221130212812129](leecode%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0.assets/image-20221130212812129.png)
+>
+>![image-20221130212832921](leecode%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0.assets/image-20221130212832921.png)
+
+代码：
+
+```java
+// 哈希表：O(m+n), O(m)
+class Solution {
+    ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        Set<ListNode> visited = new HashSet<>();
+        ListNode temp = headA;
+        while(temp != null){
+            visited.add(temp);
+            temp = temp.next;
+        }
+        temp = headB;
+        while(temp != null){
+            if(visited.contains(temp)){
+                return temp;
+            }
+            temp = temp.next;
+        }
+        return null;
+    }
+}
+// 双指针：O(m+n), O(1)
+class Solution {
+    ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if(headA == null || headB == null){
+            return null;
+        }
+
+        ListNode pA = headA, pB = headB;
+        while(pA != pB){
+            pA = pA == null ? headB : pA.next;
+            pB = pB == null ? headA : pB.next;
+        }
+        return pA;
+    }
+}
+```
+
+
+
 ### [53 - I. 在排序数组中查找数字 I](https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/)
 
 > 统计一个数字在排序数组中出现的次数。
@@ -6336,6 +6527,117 @@ class Solution {
         }
         // 如果数组中的值与索引一一对应，则缺少nums.length这个值
         return nums.length;
+    }
+}
+```
+
+
+
+### [57. 和为s的两个数字](https://leetcode.cn/problems/he-wei-sde-liang-ge-shu-zi-lcof/)
+
+> 输入一个递增排序的数组和一个数字s，在数组中查找两个数，使得它们的和正好是s。如果有多对数字的和等于s，则输出任意一对即可。
+
+示例一：
+
+```java
+输入：nums = [2,7,11,15], target = 9
+输出：[2,7] 或者 [7,2]
+```
+
+示例二：
+
+```java
+输入：nums = [10,26,30,31,47,60], target = 40
+输出：[10,30] 或者 [30,10]
+```
+
+代码：
+
+```java
+// 双指针
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        int i = 0, j = nums.length - 1;
+        while(i < j){
+            int sum = nums[i] + nums[j];
+            if(sum == target){
+                return new int[]{nums[i], nums[j]};
+            }else if(sum > target){
+                j--;
+            }else if(sum < target){
+                i++;
+            }
+        }
+        return new int[]{-1,-1};
+    }
+}
+```
+
+### [58 - I. 翻转单词顺序](https://leetcode.cn/problems/fan-zhuan-dan-ci-shun-xu-lcof/)
+
+> 输入一个英文句子，翻转句子中单词的顺序，但单词内字符的顺序不变。为简单起见，标点符号和普通字母一样处理。例如输入字符串"I am a student. "，则输出"student. a am I"。
+
+示例一：
+
+```java
+输入: "the sky is blue"
+输出: "blue is sky the"
+```
+
+示例二：
+
+```java
+输入: "  hello world!  "
+输出: "world! hello"
+解释: 输入字符串可以在前面或者后面包含多余的空格，但是反转后的字符不能包括。
+```
+
+示例三：
+
+```java
+输入: "a good   example"
+输出: "example good a"
+解释: 如果两个单词间有多余的空格，将反转后单词间的空格减少到只含一个。
+```
+
+思路：
+
+> 方法一：双指针
+> 倒序遍历字符串s ，记录单词左右索引边界 i , j ；
+> 每确定一个单词的边界，则将其添加至单词列表 res ；
+> 最终，将单词列表拼接为字符串，并返回即可。
+>
+> 方法二：分割 + 倒序
+> 以空格为分割符完成字符串分割后，若两单词间有 x > 1个空格，则在单词列表 strs中，此两单词间会多出 x - 1 个 “空单词” （即 "" ）。解决方法：倒序遍历单词列表，并将单词逐个添加至 StringBuilder ，遇到空单词时跳过。
+
+代码：
+
+```java
+// 双指针：O(N), O(N)
+class Solution {
+    public String reverseWords(String s) {
+        String str = s.trim();
+        int j = str.length() - 1, i = j;
+        StringBuilder res = new StringBuilder();
+        while(i >= 0){
+            while(i >= 0 && str.charAt(i) != ' ')   i--;
+            res.append(str.substring(i+1, j+1) + " ");
+            while(i >= 0 && str.charAt(i) == ' ')   i--;
+            j = i;
+        }
+        return res.toString().trim();
+    }
+}
+// 分割 + 倒序：O(n), O(n)
+class Solution {
+    public String reverseWords(String s) {
+        String[] strs = s.trim().split(" ");
+        StringBuilder res = new StringBuilder();
+        for(int i = strs.length - 1; i >= 0; i--){
+            if(strs[i].equals(""))  continue;
+            res.append(strs[i] + " ");
+        }
+        return res.toString().trim();
     }
 }
 ```
