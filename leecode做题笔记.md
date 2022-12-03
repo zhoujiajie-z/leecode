@@ -6912,7 +6912,6 @@ class Solution {
         dfs(0, 0, m, n, k, arr);
         return res;
     }
-
     public void dfs(int i, int j, int m, int n, int k, boolean[][] arr){
         // 计算两个坐标数字的和
         int sum = i % 10 + i / 10 + j % 10 + j / 10;
