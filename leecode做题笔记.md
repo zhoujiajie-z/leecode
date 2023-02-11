@@ -4683,6 +4683,82 @@ public ListNode middleNode(ListNode head) {
 
 ## 中等
 
+### [02. 两数相加](https://leetcode.cn/problems/add-two-numbers/)
+
+> 给你两个 非空 的链表，表示两个非负的整数。它们每位数字都是按照 逆序 的方式存储的，并且每个节点只能存储 一位 数字。
+>
+> 请你将两个数相加，并以相同形式返回一个表示和的链表。
+>
+> 你可以假设除了数字 0 之外，这两个数都不会以 0 开头。
+
+示例1：
+
+```java
+输入：l1 = [2,4,3], l2 = [5,6,4]
+输出：[7,0,8]
+解释：342 + 465 = 807.
+```
+
+示例2:
+
+```java
+输入：l1 = [0], l2 = [0]
+输出：[0]
+```
+
+示例3:
+
+```java
+输入：l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]
+输出：[8,9,9,9,0,0,0,1]
+```
+
+代码：
+
+```java
+public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+  //定义一个新联表伪指针，用来指向头指针，返回结果
+  ListNode prev = new ListNode(0);
+  //定义一个进位数的指针，用来存储当两数之和大于10的时候，
+  int carry = 0;
+  //定义一个可移动的指针，用来指向存储两个数之和的位置
+  ListNode cur = prev;
+  //当l1 不等于null或l2 不等于空时，就进入循环
+  while(l1 != null || l2 != null){
+    //如果l1 不等于null时，就取他的值，等于null时，就赋值0，保持两个链表具有相同的位数
+    int x = l1 != null ? l1.val : 0;
+    //如果l1 不等于null时，就取他的值，等于null时，就赋值0，保持两个链表具有相同的位数
+    int y = l2 != null ? l2.val : 0;
+    //将两个链表的值，进行相加，并加上进位数
+    int sum = x + y + carry;
+    //计算进位数
+    carry = sum / 10;
+    //计算两个数的和，此时排除超过10的请况（大于10，取余数）
+    sum = sum % 10;
+    //将求和数赋值给新链表的节点，
+    cur.next = new ListNode(sum);
+    //将新链表的节点后移
+    cur = cur.next;
+    //当链表l1不等于null的时候，将l1 的节点后移
+    if(l1 != null){
+      l1 = l1.next;
+    }
+    //当链表l2 不等于null的时候，将l2的节点后移
+    if(l2 != null){
+      l2 = l2.next;
+    }
+  }
+  //如果最后两个数，相加的时候有进位数的时候，就将进位数，赋予链表的新节点。
+  if(carry == 1){
+    cur.next = new ListNode(1);
+  }
+  //返回链表的头节点
+  return prev.next;
+}
+```
+
+
+
 ### 19. 删除链表的倒数第N个结点
 
 > 给你一个链表，删除链表的倒数第 `n` 个结点，并且返回链表的头结点。
@@ -5211,6 +5287,96 @@ public List<Integer> lexicalOrder(int n) {
 ## 困难
 
 
+
+# 动态规划
+
+## 简单
+
+
+
+## 中等
+
+### [5. 最长回文子串](https://leetcode.cn/problems/longest-palindromic-substring/)
+
+> 给你一个字符串 `s`，找到 `s` 中最长的回文子串。
+>
+> 如果字符串的反序与原始字符串相同，则该字符串称为回文字符串。
+
+示例1:
+
+```java
+输入：s = "babad"
+输出："bab"
+解释："aba" 同样是符合题意的答案。
+```
+
+示例2:
+
+```java
+输入：s = "cbbd"
+输出："bb"
+```
+
+思路：
+
+> 对于一个子串而言，如果它是回文串，并且长度大于 22，那么将它首尾的两个字母去除之后，它仍然是个回文串。
+
+代码：
+
+```java
+// 动态规划：O(n^2), O(n^2)
+public String longestPalindrome(String s) {
+  int len = s.length();
+  if (len < 2) {
+    return s;
+  }
+
+  int maxLen = 1;
+  int begin = 0;
+  // dp[i][j] 表示 s[i..j] 是否是回文串
+  boolean[][] dp = new boolean[len][len];
+  // 初始化：所有长度为 1 的子串都是回文串
+  for (int i = 0; i < len; i++) {
+    dp[i][i] = true;
+  }
+
+  char[] charArray = s.toCharArray();
+  // 递推开始
+  // 先枚举子串长度
+  for (int L = 2; L <= len; L++) {
+    // 枚举左边界，左边界的上限设置可以宽松一些
+    for (int i = 0; i < len; i++) {
+      // 由 L 和 i 可以确定右边界，即 j - i + 1 = L 得
+      int j = L + i - 1;
+      // 如果右边界越界，就可以退出当前循环
+      if (j >= len) {
+        break;
+      }
+
+      if (charArray[i] != charArray[j]) {
+        dp[i][j] = false;
+      } else {
+        if (j - i < 3) {
+          dp[i][j] = true;
+        } else {
+          dp[i][j] = dp[i + 1][j - 1];
+        }
+      }
+
+      // 只要 dp[i][L] == true 成立，就表示子串 s[i..L] 是回文，此时记录回文长度和起始位置
+      if (dp[i][j] && j - i + 1 > maxLen) {
+        maxLen = j - i + 1;
+        begin = i;
+      }
+    }
+  }
+  return s.substring(begin, begin + maxLen);
+}
+```
+
+
+
+## 困难
 
 
 
