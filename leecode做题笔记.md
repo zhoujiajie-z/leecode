@@ -3227,6 +3227,82 @@ public int firstBadVersion(int n) {
 
 ## 简单
 
+### [14. 最长公共前缀](https://leetcode.cn/problems/longest-common-prefix/)
+
+> 编写一个函数来查找字符串数组中的最长公共前缀。
+>
+> 如果不存在公共前缀，返回空字符串 `""`。
+
+示例一：
+
+```java
+输入：strs = ["flower","flow","flight"]
+输出："fl"
+```
+
+示例二：
+
+```java
+输入：strs = ["dog","racecar","car"]
+输出：""
+解释：输入不存在公共前缀。
+```
+
+思路：
+
+> 方法一：横向扫描	O(mn), O(1)
+> 依次遍历字符串数组中的每个字符串，对于每个遍历到的字符串，更新最长公共前缀，当遍历完所有的字符串以后，即可得到字符串数组中的最长公共前缀。如果在尚未遍历完所有的字符串时，最长公共前缀已经是空串，则最长公共前缀一定是空串，因此不需要继续遍历剩下的字符串，直接返回空串即可。
+>
+> 方法二：纵向扫描	O(mn), O(1)
+> 纵向扫描时，从前往后遍历所有字符串的每一列，比较相同列上的字符是否相同，如果相同则继续对下一列进行比较，如果不相同则当前列不再属于公共前缀，当前列之前的部分为最长公共前缀。
+
+代码：
+
+```java
+// 横向扫描
+public String longestCommonPrefix(String[] strs) {
+  if(strs == null || strs.length == 0){
+    return "";
+  }
+  String prefix = strs[0];
+  int count = strs.length;
+  for(int i = 0; i < count; i++){
+    prefix = longestCommonPrefix(prefix, strs[i]);
+    if(prefix.length() == 0){
+      break;
+    }
+  }
+  return prefix;
+}
+public String longestCommonPrefix(String str1, String str2){
+  int length = Math.min(str1.length(), str2.length());
+  int index = 0;
+  while(index < length && str1.charAt(index) == str2.charAt(index)){
+    index++;
+  }
+  return str1.substring(0, index);
+}
+// 纵向扫描
+public String longestCommonPrefix(String[] strs) {
+  if(strs == null || strs.length == 0){
+    return "";
+  }
+  int length = strs[0].length();
+  int count = strs.length;
+  for(int i = 0; i < length; i++){
+    char c = strs[0].charAt(i);
+    for(int j = 0; j < count; j++){
+      if(i == strs[j].length() || strs[j].charAt(i) != c){
+        return strs[0].substring(0, i);
+      }
+    }
+  }
+  return strs[0];
+}
+```
+
+
+
 ### 344. 反转字符串
 
 > 编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 s 的形式给出。
@@ -4883,6 +4959,74 @@ public ListNode deleteDuplicates(ListNode head) {
 
 ## 简单
 
+### [9. 回文数](https://leetcode.cn/problems/palindrome-number/)
+
+>给你一个整数 x ，如果 x 是一个回文整数，返回 true ；否则，返回 false 。
+>
+>回文数是指正序（从左向右）和倒序（从右向左）读都是一样的整数。
+>
+>例如，121 是回文，而 123 不是。
+
+示例一：
+
+```java
+输入：x = 121
+输出：true
+```
+
+示例二：
+
+```java
+输入：x = -121
+输出：false
+解释：从左向右读, 为 -121 。 从右向左读, 为 121- 。因此它不是一个回文数。
+```
+
+示例三：
+
+```java
+输入：x = 10
+输出：false
+解释：从右向左读, 为 01 。因此它不是一个回文数。
+```
+
+思路：
+
+>通过取整和取余操作获取整数中对应的数字进行比较。
+>举个例子：1221 这个数字。
+>
+>通过计算 1221 / 1000， 得首位1
+>通过计算 1221 % 10， 可得末位 1
+>进行比较
+>再将 22 取出来继续比较
+
+代码：
+
+```java
+public boolean isPalindrome(int x) {
+  // 边界判断
+  if(x < 0 || (x % 10 == 0 && x != 0)){
+    return false;
+  }
+  int div = 1;
+  while(x / div >= 10){
+    div *= 10;
+  }
+  while(x > 0){
+    int left = x / div;
+    int right = x % 10;
+    if(left != right){
+      return false;
+    }
+    x = (x % div) / 10;
+    div = div / 100;
+  }
+  return true;
+}
+```
+
+
+
 ### 868. 二进制间距
 
 > 给定一个正整数 n，找到并返回 n 的二进制表示中两个 相邻 1 之间的 最长距离 。如果不存在两个相邻的 1，返回 0 。
@@ -4963,6 +5107,67 @@ public int binaryGap(int n) {
 
 
 ## 中等
+
+### [7. 整数反转](https://leetcode.cn/problems/reverse-integer/)
+
+> 给你一个 32 位的有符号整数 x ，返回将 x 中的数字部分反转后的结果。
+>
+> 如果反转后整数超过 32 位的有符号整数的范围 [−231,  231 − 1] ，就返回 0。
+>
+> 假设环境不允许存储 64 位整数（有符号或无符号）。
+
+示例一：
+
+```java
+输入：x = 123
+输出：321
+```
+
+示例二：
+
+```java
+输入：x = -123
+输出：-321
+```
+
+示例三：
+
+```java
+输入：x = 120
+输出：21
+```
+
+思路：
+
+> 假设我们的环境只能存储得下 32 位的有符号整数，则其数值范围为 `[−2^31, 2^31 − 1]`，即-2147483648～2147483647
+>
+> 如果某个数字大于 214748364那后面就不用再判断了，肯定溢出了。
+> 如果某个数字等于 214748364呢，需要要跟最大数的末尾数字比较，如果这个数字比7还大，说明溢出了。
+>
+> 如果某个数字**小于** `-214748364`说明溢出了
+> 如果某个数字**等于** `-214748364`，还需要跟最小数的末尾比较，即看它是否小于`8`
+
+代码：
+
+```java
+public int reverse(int x) {
+  int res = 0;
+  while(x != 0){
+    int tmp = x % 10;
+    if(res > 214748364 || (res == 214748364 && tmp > 7)){
+      return 0;
+    }
+    if(res < -214748364 || (res == -214748364 && tmp < -8)){
+      return 0;
+    }
+    res = res * 10 + tmp;
+    x = x / 10;
+  }
+  return res;
+}
+```
+
+
 
 ### 172. 阶乘后的零
 
@@ -5371,6 +5576,62 @@ public String longestPalindrome(String s) {
     }
   }
   return s.substring(begin, begin + maxLen);
+}
+```
+
+
+
+## 困难
+
+
+
+# 贪心算法
+
+## 简单
+
+
+
+## 中等
+
+### [11. 盛最多水的容器](https://leetcode.cn/problems/container-with-most-water/)
+
+> 给定一个长度为 n 的整数数组 height 。有 n 条垂线，第 i 条线的两个端点是 (i, 0) 和 (i, height[i]) 。
+>
+> 找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
+>
+> 返回容器可以储存的最大水量。
+>
+> 说明：你不能倾斜容器。
+
+示例一：
+
+```java
+输入：[1,8,6,2,5,4,8,3,7]
+输出：49 
+解释：图中垂直线代表输入数组 [1,8,6,2,5,4,8,3,7]。在此情况下，容器能够容纳水（表示为蓝色部分）的最大值为 49。
+```
+
+思路：
+
+>双指针代表的是 可以作为容器边界的所有位置的范围。在一开始，双指针指向数组的左右边界，表示数组中所有的位置都可以作为容器的边界，因为我们还没有进行过任何尝试。在这之后，我们每次将 对应的数字较小的那个指针 往 另一个指针 的方向移动一个位置，就表示我们认为 这个指针不可能再作为容器的边界了。
+
+代码：
+
+```java
+// 贪心算法，时间复杂度O(N), 空间复杂度O(1)
+public int maxArea(int[] height) {
+  int l = 0, r = height.length - 1;
+  int ans = 0;
+  while(l < r){
+    int area = Math.min(height[l], height[r]) * (r-l);
+    ans = Math.max(ans, area);
+    if(height[l] < height[r]){
+      l++;
+    }else{
+      r--;
+    }
+  }
+  return ans;
 }
 ```
 
