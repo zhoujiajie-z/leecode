@@ -1638,6 +1638,79 @@ public List<List<Integer>> threeSum(int[] nums) {
 }
 ```
 
+### [16. 最接近的三数之和](https://leetcode.cn/problems/3sum-closest/)
+
+> 给你一个长度为 n 的整数数组 nums 和 一个目标值 target。请你从 nums 中选出三个整数，使它们的和与 target 最接近。
+>
+> 返回这三个数的和。
+>
+> 假定每组输入只存在恰好一个解。
+
+示例一：
+
+```java
+输入：nums = [-1,2,1,-4], target = 1
+输出：2
+解释：与 target 最接近的和是 2 (-1 + 2 + 1 = 2) 。
+```
+
+示例二：
+
+```java
+输入：nums = [0,0,0], target = 1
+输出：0
+```
+
+代码：
+
+```java
+//O(N^2), O(logN)
+public int threeSumClosest(int[] nums, int target) {
+  // 对数组进行排序防止重复枚举
+  Arrays.sort(nums);
+  int length = nums.length;
+  int best = 1000000;
+	// 枚举第一个数字
+  for (int first = 0; first < length; first++) {
+    // 保证和上一个枚举的元素不相等
+    if (first > 0 && nums[first] == nums[first - 1]) {
+      continue;
+    }
+    // 使用双指针枚举后两个数字
+    int second = first + 1, third = length - 1;
+    while (second < third) {
+      int sum = nums[first] + nums[second] + nums[third];
+      // 如果和为target则不可能存在比这个更接近的数字，直接返回
+      if (sum == target) {
+        return target;
+      }
+      // 根据差值的绝对值大小来更新答案
+      if (Math.abs(sum - target) < Math.abs(best - target)) {
+        best = sum;
+      }
+      // 如果和比target大，则令第三个数字左移
+      if (sum > target) {
+        int third_new = third - 1;
+        // 移到下一个不相等的元素
+        while (second < third_new && nums[third_new] == nums[third]) {
+          third_new--;
+        }
+        third = third_new;
+      } else {
+        // 和比target小，第二个元素右移
+        int second_new = second + 1;
+        // 移到下一个不相等的元素
+        while (second_new < third && nums[second_new] == nums[second]) {
+          second_new++;
+        }
+        second = second_new;
+      }
+    }
+  }
+  return best;
+}
+```
+
 
 
 ### 33. 搜索旋转排序数组
@@ -4948,6 +5021,98 @@ public ListNode deleteDuplicates(ListNode head) {
     return node.next;
 }
 ```
+
+
+
+## 困难
+
+
+
+# 栈
+
+## 简单
+
+### [20. 有效的括号](https://leetcode.cn/problems/valid-parentheses/)
+
+> 给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串 s ，判断字符串是否有效。
+>
+> 有效字符串需满足：
+>
+> 左括号必须用相同类型的右括号闭合。
+> 左括号必须以正确的顺序闭合。
+> 每个右括号都有一个对应的相同类型的左括号。
+
+示例一：
+
+```java
+输入：s = "()"
+输出：true
+```
+
+示例二：
+
+```java
+输入：s = "()[]{}"
+输出：true
+```
+
+示例三：
+
+```java
+输入：s = "(]"
+输出：false
+```
+
+思路：
+
+>当我们遇到一个左括号时，我们会期望在后续的遍历中，有一个相同类型的右括号将其闭合。由于后遇到的左括号要先闭合，因此我们可以将这个左括号放入栈顶。
+>
+>当我们遇到一个右括号时，我们需要将一个相同类型的左括号闭合。此时，我们可以取出栈顶的左括号并判断它们是否是相同类型的括号。如果不是相同的类型，或者栈中并没有左括号，那么字符串 s 无效，返回False。为了快速判断括号的类型，我们可以使用哈希表存储每一种括号。哈希表的键为右括号，值为相同类型的左括号。
+>
+>在遍历结束后，如果栈中没有左括号，说明我们将字符串 s 中的所有左括号闭合，返回 True，否则返回 False。
+>
+>注意到有效字符串的长度一定为偶数，因此如果字符串的长度为奇数，我们可以直接返回 False，省去后续的遍历判断过程。
+
+代码：
+
+```java
+// 时间复杂度：O(N)
+public boolean isValid(String s) {
+  int length = s.length();
+  // 如果字符串长度为奇数则肯定存在不匹配问题，直接返回
+  if(length % 2 == 1){
+    return false;
+  }
+  // 将对应的括号存在哈希表中
+  Map<Character, Character> pairs = new HashMap<Character, Character>();
+  pairs.put(')', '(');
+  pairs.put(']', '[');
+  pairs.put('}', '{');
+  // 使用栈来保存字符串中的左侧括号
+  Deque<Character> stack = new LinkedList<Character>();
+  for(int i = 0; i < length; i++){
+    char ch = s.charAt(i);
+    // 判断字符是左括号还是右括号，如果哈希表中存在，则证明是有括号，否则为左括号
+    if(pairs.containsKey(ch)){
+      // 如果当前字符是右括号，而栈为空或者栈顶元素与该符号不是配对符号，则返回
+      if(stack.isEmpty() || stack.peek() != pairs.get(ch)){
+        return false;
+      }
+      // 如果匹配则弹出对应的栈顶元素即对应的左括号弹出左符号栈
+      stack.pop();
+    }else{
+      // 当前字符为左括号，保存在括号栈中
+      stack.push(ch);
+    }
+  }
+  // 如果完全匹配则括号栈应为空返回true，否则不匹配
+  return stack.isEmpty();
+}
+```
+
+
+
+## 中等
 
 
 
