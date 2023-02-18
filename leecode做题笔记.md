@@ -1517,6 +1517,77 @@ public int[] sortedSquares(int[] nums) {
 
 
 
+### [2562. 找出数组的串联值](https://leetcode.cn/problems/find-the-array-concatenation-value/)
+
+> 给你一个下标从 0 开始的整数数组 nums 。
+>
+> 现定义两个数字的 串联 是由这两个数值串联起来形成的新数字。
+>
+> 例如，15 和 49 的串联是 1549 。
+> nums 的 串联值 最初等于 0 。执行下述操作直到 nums 变为空：
+>
+> 如果 nums 中存在不止一个数字，分别选中 nums 中的第一个元素和最后一个元素，将二者串联得到的值加到 nums 的 串联值 上，然后从 nums 中删除第一个和最后一个元素。
+> 如果仅存在一个元素，则将该元素的值加到 nums 的串联值上，然后删除这个元素。
+> 返回执行完所有操作后 nums 的串联值。
+
+示例一：
+
+```java
+输入：nums = [7,52,2,4]
+输出：596
+解释：在执行任一步操作前，nums 为 [7,52,2,4] ，串联值为 0 。
+ - 在第一步操作中：
+我们选中第一个元素 7 和最后一个元素 4 。
+二者的串联是 74 ，将其加到串联值上，所以串联值等于 74 。
+接着我们从 nums 中移除这两个元素，所以 nums 变为 [52,2] 。
+ - 在第二步操作中： 
+我们选中第一个元素 52 和最后一个元素 2 。 
+二者的串联是 522 ，将其加到串联值上，所以串联值等于 596 。
+接着我们从 nums 中移除这两个元素，所以 nums 变为空。
+由于串联值等于 596 ，所以答案就是 596 。
+```
+
+示例二：
+
+```java
+输入：nums = [5,14,13,8,12]
+输出：673
+解释：在执行任一步操作前，nums 为 [5,14,13,8,12] ，串联值为 0 。 
+- 在第一步操作中： 
+我们选中第一个元素 5 和最后一个元素 12 。 
+二者的串联是 512 ，将其加到串联值上，所以串联值等于 512 。 
+接着我们从 nums 中移除这两个元素，所以 nums 变为 [14,13,8] 。
+- 在第二步操作中：
+我们选中第一个元素 14 和最后一个元素 8 。
+二者的串联是 148 ，将其加到串联值上，所以串联值等于 660 。
+接着我们从 nums 中移除这两个元素，所以 nums 变为 [13] 。 
+- 在第三步操作中：
+nums 只有一个元素，所以我们选中 13 并将其加到串联值上，所以串联值等于 673 。
+接着我们从 nums 中移除这个元素，所以 nums 变为空。 
+由于串联值等于 673 ，所以答案就是 673 。
+```
+
+代码：
+
+```java
+public long findTheArrayConcVal(int[] nums) {
+  int left = 0, right = nums.length - 1;
+  long res = 0;
+  while(right > left){
+    int tmp = Integer.valueOf(nums[left]+""+nums[right]);
+    res += tmp;
+    right--;
+    left++;
+  }
+  if(left == right){
+    res += nums[left];
+  }
+  return res;
+}
+```
+
+
+
 ## 中等题
 
 ### 11. 盛最多水的容器
@@ -5506,6 +5577,69 @@ public int largestPalindrome(int n) {
 
 ## 简单
 
+### [15. 二进制中1的个数](https://leetcode.cn/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)
+
+> 编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数（也被称为 [汉明重量](http://en.wikipedia.org/wiki/Hamming_weight)).）。
+
+示例一：
+
+```java
+输入：n = 11 (控制台输入 00000000000000000000000000001011)
+输出：3
+解释：输入的二进制串 00000000000000000000000000001011 中，共有三位为 '1'。
+```
+
+示例二：
+
+```java
+输入：n = 128 (控制台输入 00000000000000000000000010000000)
+输出：1
+解释：输入的二进制串 00000000000000000000000010000000 中，共有一位为 '1'。
+```
+
+示例三：
+
+```java
+输入：n = 4294967293 (控制台输入 11111111111111111111111111111101，部分语言中 n = -3）
+输出：31
+解释：输入的二进制串 11111111111111111111111111111101 中，共有 31 位为 '1'。
+```
+
+思路：
+
+> 方法一：循环检查二进制位：O(k), O(1)
+> 当检查第i位时。我们可以让n与2^i进行与运算，当且仅当n的第i位为1时，运算结果不为0
+>
+> 方法二：位运算：O(logn), O(1)
+> 我们可以利用这个位运算的性质加速我们的检查过程，在实际代码中，我们不断让当前的 n 与 n−1 做与运算，直到 n 变为 0 即可。因为每次运算会使得 n 的最低位的 1 被翻转，因此运算次数就等于 n 的二进制位中 
+> 1 的个数。
+
+代码：
+
+```java
+// 方法一
+public int hammingWeight(int n) {
+  int result = 0;
+  for(int i = 0; i < 32; i++){
+    if((n & (1 << i)) != 0){
+      result++;
+    }
+  }
+  return result;
+}
+// 方法二
+public int hammingWeight(int n) {
+  int result = 0;
+  while(n != 0){
+    n = n & (n-1);
+    result++;
+  }
+  return result;
+}
+```
+
+
+
 ### 693. 交题位二进制数
 
 > 给定一个正整数，检查它的二进制表示是否总是 0、1 交替出现：换句话说，就是二进制表示中相邻两位的数字永不相同。
@@ -5741,6 +5875,46 @@ public String longestPalindrome(String s) {
     }
   }
   return s.substring(begin, begin + maxLen);
+}
+```
+
+### [剑指 Offer 14- I. 剪绳子](https://leetcode.cn/problems/jian-sheng-zi-lcof/)
+
+> 给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段（m、n都是整数，n>1并且m>1），每段绳子的长度记为 k[0],k[1]...k[m-1] 。请问 k[0]*k[1]*...*k[m-1] 可能的最大乘积是多少？例如，当绳子的长度是8时，我们把它剪成长度分别为2、3、3的三段，此时得到的最大乘积是18。
+
+示例一：
+
+```java
+输入: 2
+输出: 1
+解释: 2 = 1 + 1, 1 × 1 = 1
+```
+
+示例二：
+
+```java
+输入: 10
+输出: 36
+解释: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36
+```
+
+思路：
+
+>![image-20230218113722892](/Users/zhoujiajie/Library/Application Support/typora-user-images/image-20230218113722892.png)
+
+代码：
+
+```java
+public int cuttingRope(int n) {
+  int[] dp = new int[n + 1];
+  for (int i = 2; i <= n; i++) {
+    int curMax = 0;
+    for (int j = 1; j < i; j++) {
+      curMax = Math.max(curMax, Math.max(j * (i - j), j * dp[i - j]));
+    }
+    dp[i] = curMax;
+  }
+  return dp[n];
 }
 ```
 
@@ -6303,6 +6477,67 @@ class Solution {
         }
         return numbers[left];
     }
+}
+```
+
+### [15. 二进制中1的个数](https://leetcode.cn/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)
+
+> 编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数（也被称为 [汉明重量](http://en.wikipedia.org/wiki/Hamming_weight)).）。
+
+示例一：
+
+```java
+输入：n = 11 (控制台输入 00000000000000000000000000001011)
+输出：3
+解释：输入的二进制串 00000000000000000000000000001011 中，共有三位为 '1'。
+```
+
+示例二：
+
+```java
+输入：n = 128 (控制台输入 00000000000000000000000010000000)
+输出：1
+解释：输入的二进制串 00000000000000000000000010000000 中，共有一位为 '1'。
+```
+
+示例三：
+
+```java
+输入：n = 4294967293 (控制台输入 11111111111111111111111111111101，部分语言中 n = -3）
+输出：31
+解释：输入的二进制串 11111111111111111111111111111101 中，共有 31 位为 '1'。
+```
+
+思路：
+
+> 方法一：循环检查二进制位：O(k), O(1)
+> 当检查第i位时。我们可以让n与2^i进行与运算，当且仅当n的第i位为1时，运算结果不为0
+>
+> 方法二：位运算：O(logn), O(1)
+> 我们可以利用这个位运算的性质加速我们的检查过程，在实际代码中，我们不断让当前的 n 与 n−1 做与运算，直到 n 变为 0 即可。因为每次运算会使得 n 的最低位的 1 被翻转，因此运算次数就等于 n 的二进制位中 
+> 1 的个数。
+
+代码：
+
+```java
+// 方法一
+public int hammingWeight(int n) {
+  int result = 0;
+  for(int i = 0; i < 32; i++){
+    if((n & (1 << i)) != 0){
+      result++;
+    }
+  }
+  return result;
+}
+// 方法二
+public int hammingWeight(int n) {
+  int result = 0;
+  while(n != 0){
+    n = n & (n-1);
+    result++;
+  }
+  return result;
 }
 ```
 
@@ -7550,6 +7785,93 @@ class Solution {
         }
         return res;
     }
+}
+```
+
+### [14- I. 剪绳子](https://leetcode.cn/problems/jian-sheng-zi-lcof/)
+
+> 给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段（m、n都是整数，n>1并且m>1），每段绳子的长度记为 k[0],k[1]...k[m-1] 。请问 k[0]*k[1]*...*k[m-1] 可能的最大乘积是多少？例如，当绳子的长度是8时，我们把它剪成长度分别为2、3、3的三段，此时得到的最大乘积是18。
+
+示例一：
+
+```java
+输入: 2
+输出: 1
+解释: 2 = 1 + 1, 1 × 1 = 1
+```
+
+示例二：
+
+```java
+输入: 10
+输出: 36
+解释: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36
+```
+
+思路：
+
+>![image-20230218113722892](/Users/zhoujiajie/Library/Application Support/typora-user-images/image-20230218113722892.png)
+
+代码：
+
+```java
+public int cuttingRope(int n) {
+  int[] dp = new int[n + 1];
+  for (int i = 2; i <= n; i++) {
+    int curMax = 0;
+    for (int j = 1; j < i; j++) {
+      curMax = Math.max(curMax, Math.max(j * (i - j), j * dp[i - j]));
+    }
+    dp[i] = curMax;
+  }
+  return dp[n];
+}
+```
+
+### [16. 数值的整数次方](https://leetcode.cn/problems/shu-zhi-de-zheng-shu-ci-fang-lcof/)
+
+> 实现 [pow(*x*, *n*)](https://www.cplusplus.com/reference/valarray/pow/) ，即计算 x 的 n 次幂函数（即，xn）。不得使用库函数，同时不需要考虑大数问题。
+
+示例一：
+
+```java
+输入：x = 2.00000, n = 10
+输出：1024.00000
+```
+
+示例二：
+
+```java
+输入：x = 2.10000, n = 3
+输出：9.26100
+```
+
+示例三：
+
+```java
+输入：x = 2.00000, n = -2
+输出：0.25000
+解释：2-2 = 1/22 = 1/4 = 0.25
+```
+
+思路：
+
+> ![image-20230218152137198](/Users/zhoujiajie/Library/Application Support/typora-user-images/image-20230218152137198.png)
+
+代码：
+
+```java
+// O(logN), O(logN)
+public double myPow(double x, int n) {
+  long N = n;
+  return N >= 0 ? quickMul(x, N) : 1.0 / quickMul(x, -N);
+}
+public double quickMul(double x, long N){
+  if(N == 0){
+    return 1.0;
+  }
+  double y = quickMul(x, N /2);
+  return N % 2 == 0 ? y * y : y * y * x;
 }
 ```
 
