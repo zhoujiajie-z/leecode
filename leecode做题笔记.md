@@ -6541,7 +6541,29 @@ public int hammingWeight(int n) {
 }
 ```
 
+### [17. 打印从1到最大的n位数](https://leetcode.cn/problems/da-yin-cong-1dao-zui-da-de-nwei-shu-lcof/)
 
+> 输入数字 `n`，按顺序打印出从 1 到最大的 n 位十进制数。比如输入 3，则打印出 1、2、3 一直到最大的 3 位数 999。
+
+示例一：
+
+```java
+输入: n = 1
+输出: [1,2,3,4,5,6,7,8,9]
+```
+
+代码：
+
+```java
+public int[] printNumbers(int n) {
+  int end = (int) Math.pow(10, n) - 1;
+  int[] ans = new int[end];
+  for(int i = 1; i < Math.pow(10, n); i++){
+    ans[i-1] = i;
+  }
+  return ans;
+}
+```
 
 ### [18. 删除链表的节点](https://leetcode.cn/problems/shan-chu-lian-biao-de-jie-dian-lcof/)
 
@@ -6902,6 +6924,98 @@ class Solution {
 }
 ```
 
+### [29. 顺时针打印矩阵](https://leetcode.cn/problems/shun-shi-zhen-da-yin-ju-zhen-lcof/)
+
+> 输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。
+
+示例一：
+
+```java
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5]
+```
+
+示例二：
+
+```java
+输入：matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+输出：[1,2,3,4,8,12,11,10,9,5,6,7]
+```
+
+思路：
+
+> 方法一：模拟 O(mn), O(mn)
+> 初始位置是矩阵的左上角，初始方向是向右，当路径超出界限或者进入之前访问过的位置时，顺时针旋转，进入下一个方向。判断路径是否进入之前访问过的位置需要使用一个与输入矩阵大小相同的辅助矩阵 visited，其中的每个元素表示该位置是否被访问过。当一个元素被访问时，将 visited 中的对应位置的元素设为已访问。如何判断路径是否结束？由于矩阵中的每个元素都被访问一次，因此路径的长度即为矩阵中的元素数量，当路径的长度达到矩阵中的元素数量时即为完整路径，将该路径返回。
+>
+> 方法二：按层模拟	O(mn), O(1)
+> 对于每层，从左上方开始以顺时针的顺序遍历所有元素。假设当前层的左上角位于 (top,left)，右下角位于 (bottom,right)，按照如下顺序遍历当前层的元素。
+>
+> 1. 从左到右遍历上侧元素，依次为 (top,left)到 (top,right)
+> 2. 从上到下遍历右侧元素，依次为 (top+1,right) 到 (bottom,right)
+> 3. 如果 left<right 且 top<bottom，则从右到左遍历下侧元素，依次为 (bottom,right−1) 到 (bottom,left+1)，以及从下到上遍历左侧元素，依次为 (bottom,left) 到 (top+1,left)。
+>
+> 遍历完当前层的元素之后，将 left 和 top 分别增加 1，将 right 和 bottom 分别减少 1，进入下一层继续遍历，直到遍历完所有元素为止。
+
+代码：
+
+```java
+// 方法一：模拟
+public int[] spiralOrder(int[][] matrix) {
+  if(matrix == null || matrix.length == 0 || matrix[0].length == 0){
+    return new int[0];
+  }
+  int rows = matrix.length, columns = matrix[0].length;
+  boolean[][] visited = new boolean[rows][columns];
+  int total = rows * columns;
+  int[] res = new int[total];
+  int row = 0, column = 0;
+  int[][] directions = new int[][]{{0,1},{1,0},{0,-1},{-1,0}};
+  int directionIndex = 0;
+  for(int i = 0; i < total; i++){
+    res[i] = matrix[row][column];
+    visited[row][column] = true;
+    int nextRow = row + directions[directionIndex][0], nextColumn = column + directions[directionIndex][1];
+    if(nextRow < 0 || nextRow >= rows || nextColumn < 0 || nextColumn >= columns || visited[nextRow][nextColumn] == true){
+      directionIndex = (directionIndex + 1) % 4;
+    }
+    row = row + directions[directionIndex][0];
+    column = column + directions[directionIndex][1];
+  }
+  return res;
+}
+// 方法二：按层模拟
+public int[] spiralOrder(int[][] matrix) {
+  if(matrix == null || matrix.length == 0 || matrix[0].length == 0){
+    return new int[0];
+  }
+  int rows = matrix.length, columns = matrix[0].length;
+  int index = 0;
+  int[] res = new int[rows * columns];
+  int left = 0, right = columns -1, top = 0, bottom = rows - 1;
+  while(left <= right && top <= bottom){
+    for(int column = left; column <= right; column++){
+      res[index++] = matrix[top][column];
+    }
+    for(int row = top + 1; row <= bottom; row++){
+      res[index++] = matrix[row][right];
+    }
+    if(left < right && top < bottom){
+      for(int column = right - 1; column > left; column--){
+        res[index++] = matrix[bottom][column];
+      }
+      for(int row = bottom; row > top; row--){
+        res[index++] = matrix[row][left];
+      }
+    }
+    left++;
+    right--;
+    top++;
+    bottom--;
+  }
+  return res;
+}
+```
+
 
 
 ### [30. 包含min函数的栈](https://leetcode.cn/problems/bao-han-minhan-shu-de-zhan-lcof/)
@@ -6960,6 +7074,53 @@ class MinStack {
 }
 ```
 
+### [31. 栈的压入、弹出序列](https://leetcode.cn/problems/zhan-de-ya-ru-dan-chu-xu-lie-lcof/)
+
+> 输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如，序列 {1,2,3,4,5} 是某栈的压栈序列，序列 {4,5,3,2,1} 是该压栈序列对应的一个弹出序列，但 {4,3,5,1,2} 就不可能是该压栈序列的弹出序列。
+
+示例一：
+
+```java
+输入：pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
+输出：true
+解释：我们可以按以下顺序执行：
+push(1), push(2), push(3), push(4), pop() -> 4,
+push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
+```
+
+示例二：
+
+```java
+输入：pushed = [1,2,3,4,5], popped = [4,3,5,1,2]
+输出：false
+解释：1 不能在 2 之前弹出。
+```
+
+思路：
+
+> 借用一个辅助栈stacj ，**模拟** 压入 / 弹出操作的排列。根据是否模拟成功，即可得到结果。
+>
+> 入栈操作： 按照压栈序列的顺序执行。
+> 出栈操作： 每次入栈后，循环判断 “栈顶元素 = 弹出序列的当前元素” 是否成立，将符合弹出序列顺序的栈顶元素全部弹出
+
+代码：
+
+```java
+// 模拟：O(n), O(n)
+public boolean validateStackSequences(int[] pushed, int[] popped) {
+  Deque<Integer> stack = new ArrayDeque<Integer>();
+  int i = 0;
+  for(int num : pushed){
+    stack.push(num);
+    while(!stack.isEmpty() && stack.peek() == popped[i]){
+      stack.pop();
+      i++;
+    }
+  }
+  return stack.isEmpty();
+}
+```
+
 
 
 ### [32 - II. 从上到下打印二叉树 II](https://leetcode.cn/problems/cong-shang-dao-xia-da-yin-er-cha-shu-ii-lcof/)
@@ -7005,6 +7166,69 @@ class Solution {
         }
         return res;
     }
+}
+```
+
+### [33. 二叉搜索树的后序遍历序列](https://leetcode.cn/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/)
+
+> 输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历结果。如果是则返回 `true`，否则返回 `false`。假设输入的数组的任意两个数字都互不相同。
+
+示例一：
+
+```java
+输入: [1,6,3,2,5]
+输出: false
+```
+
+示例二：
+
+```java
+输入: [1,3,2,6,5]
+输出: true
+```
+
+思路：
+
+> **方法一：递归分治	O(N^2), O(N)**
+> **终止条件：** 当 i≥j ，说明此子树节点数量 ≤1 ，无需判别正确性，因此直接返回 true 
+> **递推工作：**
+>
+> 	1. **划分左右子树：** 遍历后序遍历的 [i,j] 区间元素，寻找 第一个大于根节点 的节点，索引记为 m 。此时，可划分出左子树区间 
+>     [i,m−1] 、右子树区间 [m,j−1] 、根节点索引 j 。
+> 	2. **判断是否为二叉搜索树：**
+>     * 左子树区间 [i,m−1] 内的所有节点都应 < postorder[j] 。而第 1.划分左右子树 步骤已经保证左子树区间的正确性，因此只需要判断右子树区间即可。
+>     * 右子树区间 [m,j−1] 内的所有节点都应 < postorder[j] 。实现方式为遍历，当遇到 ≤postorder[j] 的节点则跳出；则可通过 p=j 判断是否为二叉搜索树。
+>
+> **返回值：** 所有子树都需正确才可判定正确，因此使用 **与逻辑符** && 连接
+>
+>      1. **p = j：**判断 **此树** 是否正确。
+>      1. **recur(i, m-1)：** 判断 **此树的左子树** 是否正确
+>      1. **recur(m, j-1)：** 判断 **此树的右子树** 是否正确
+
+代码：
+
+```java
+// 递归分治
+public boolean verifyPostorder(int[] postorder) {
+  return recur(postorder,0,postorder.length-1);
+}
+
+boolean recur(int[] postorder, int i, int j){
+  // 说明子树节点数量小于等于1，直接返回true
+  if(i >= j)  return true;
+  // 寻找左子树
+  int p = i;
+  // 左子树所有节点都应小于根节点
+  while(postorder[p] < postorder[j]){
+    p++;
+  }
+  int m = p;
+  // 右子树所有节点都应大于根节点，遇到小于等于根节点的值则跳出
+  while(postorder[p] > postorder[j]){
+    p++;
+  }
+  // 只有当p=j时能保证该树为二叉搜索树
+  return p==j && recur(postorder,i, m-1) && recur(postorder, m, j-1);
 }
 ```
 
