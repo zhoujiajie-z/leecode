@@ -7194,10 +7194,10 @@ class Solution {
 > **递推工作：**
 >
 > 	1. **划分左右子树：** 遍历后序遍历的 [i,j] 区间元素，寻找 第一个大于根节点 的节点，索引记为 m 。此时，可划分出左子树区间 
->     [i,m−1] 、右子树区间 [m,j−1] 、根节点索引 j 。
+> 	[i,m−1] 、右子树区间 [m,j−1] 、根节点索引 j 。
 > 	2. **判断是否为二叉搜索树：**
->     * 左子树区间 [i,m−1] 内的所有节点都应 < postorder[j] 。而第 1.划分左右子树 步骤已经保证左子树区间的正确性，因此只需要判断右子树区间即可。
->     * 右子树区间 [m,j−1] 内的所有节点都应 < postorder[j] 。实现方式为遍历，当遇到 ≤postorder[j] 的节点则跳出；则可通过 p=j 判断是否为二叉搜索树。
+> 	* 左子树区间 [i,m−1] 内的所有节点都应 < postorder[j] 。而第 1.划分左右子树 步骤已经保证左子树区间的正确性，因此只需要判断右子树区间即可。
+> 	* 右子树区间 [m,j−1] 内的所有节点都应 < postorder[j] 。实现方式为遍历，当遇到 ≤postorder[j] 的节点则跳出；则可通过 p=j 判断是否为二叉搜索树。
 >
 > **返回值：** 所有子树都需正确才可判定正确，因此使用 **与逻辑符** && 连接
 >
@@ -7229,6 +7229,47 @@ boolean recur(int[] postorder, int i, int j){
   }
   // 只有当p=j时能保证该树为二叉搜索树
   return p==j && recur(postorder,i, m-1) && recur(postorder, m, j-1);
+}
+```
+
+### [39. 数组中出现次数超过一半的数字](https://leetcode.cn/problems/shu-zu-zhong-chu-xian-ci-shu-chao-guo-yi-ban-de-shu-zi-lcof/)
+
+> 数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。
+>
+> 你可以假设数组是非空的，并且给定的数组总是存在多数元素。
+
+示例一：
+
+```java
+输入: [1, 2, 3, 2, 2, 2, 5, 4, 2]
+输出: 2
+```
+
+代码：
+
+```java
+// 哈希表：O(N), O(N)
+public int majorityElement(int[] nums) {
+  int ans = 0;
+  int length = nums.length;
+  Map<Integer, Integer> map = new HashMap<>();
+  for(int num : nums){
+    if(map.containsKey(num)){
+      map.put(num, map.get(num) + 1);
+    }else{
+      map.put(num, 1);
+    }
+    if(map.get(num) > length / 2){
+      ans = num;
+      break;
+    }
+  }
+  return ans;
+}
+// 排序：O(NlogN), O(logN)
+public int majorityElement(int[] nums) {
+  Arrays.sort(nums);
+  return nums[nums.length / 2];
 }
 ```
 
@@ -8337,6 +8378,116 @@ class Solution {
 }
 ```
 
+### [38. 字符串的排列](https://leetcode.cn/problems/zi-fu-chuan-de-pai-lie-lcof/)
+
+> 输入一个字符串，打印出该字符串中字符的所有排列。
+>
+> 你可以以任意顺序返回这个字符串数组，但里面不能有重复元素。
+
+示例一：
+
+```java
+输入：s = "abc"
+输出：["abc","acb","bac","bca","cab","cba"]
+```
+
+代码：
+
+```java
+class Solution {
+    //为了让递归函数添加结果方便，定义到函数之外，这样无需带到递归函数的参数列表中
+    List<String> list = new ArrayList<>();
+    //同；但是其赋值依赖c，定义声明分开
+    char[] c;
+    public String[] permutation(String s) {
+        c = s.toCharArray();
+        //从第一层开始递归
+        dfs(0);
+        //将字符串数组ArrayList转化为String类型数组
+        return list.toArray(new String[list.size()]);
+    }
+
+    private void dfs(int x) {
+        //当递归函数到达第三层，就返回，因为此时第二第三个位置已经发生了交换
+        if (x == c.length - 1) {
+            //将字符数组转换为字符串
+            list.add(String.valueOf(c));
+            return;
+        }
+        //为了防止同一层递归出现重复元素
+        HashSet<Character> set = new HashSet<>();
+        //这里就很巧妙了,第一层可以是a,b,c那么就有三种情况，这里i = x,正巧dfs(0)，正好i = 0开始
+        // 当第二层只有两种情况，dfs(1）i = 1开始
+        for (int i = x; i < c.length; i++){
+            //发生剪枝，当包含这个元素的时候，直接跳过
+            if (set.contains(c[i])){
+                continue;
+            }
+            set.add(c[i]);
+            //交换元素，这里很是巧妙，当在第二层dfs(1),x = 1,那么i = 1或者 2， 不是交换1和1，要就是交换1和2
+            swap(i,x);
+            //进入下一层递归
+            dfs(x + 1);
+            //返回时交换回来，这样保证到达第1层的时候，一直都是abc。这里捋顺一下，开始一直都是abc，那么第一位置总共就3个交换
+            //分别是a与a交换，这个就相当于 x = 0, i = 0;
+            //     a与b交换            x = 0, i = 1;
+            //     a与c交换            x = 0, i = 2;
+            //就相当于上图中开始的三条路径
+            //第一个元素固定后，每个引出两条路径,
+            //     b与b交换            x = 1, i = 1;
+            //     b与c交换            x = 1, i = 2;
+            //所以，结合上图，在每条路径上标注上i的值，就会非常容易好理解了
+            swap(i,x);
+        }
+    }
+
+    private void swap(int i, int x) {
+        char temp = c[i];
+        c[i] = c[x];
+        c[x] = temp;
+    }
+}
+```
+
+### [44. 数字序列中某一位的数字](https://leetcode.cn/problems/shu-zi-xu-lie-zhong-mou-yi-wei-de-shu-zi-lcof/)
+
+> 数字以0123456789101112131415…的格式序列化到一个字符序列中。在这个序列中，第5位（从下标0开始计数）是5，第13位是1，第19位是4，等等。
+>
+> 请写一个函数，求任意第n位对应的数字。
+
+示例一：
+
+```java
+输入：n = 3
+输出：3
+```
+
+示例二：
+
+```java
+输入：n = 11
+输出：0
+```
+
+代码：
+
+```java
+// O(logN), O(logN)
+public int findNthDigit(int n) {
+  int digit = 1;
+  long count = 9;
+  long start = 1;
+  while(n > count){
+    n -= count;
+    digit += 1;
+    start *= 10;
+    count = digit * start * 9;
+  }
+  long num = start + (n-1) / digit;
+  return Long.toString(num).charAt((n-1) % digit) - '0';
+}
+```
+
 
 
 ### [46. 把数字翻译成字符串](https://leetcode.cn/problems/ba-shu-zi-fan-yi-cheng-zi-fu-chuan-lcof/)
@@ -8471,6 +8622,41 @@ class Solution {
         }
         return res;
     }
+}
+```
+
+### [49. 丑数](https://leetcode.cn/problems/chou-shu-lcof/)
+
+> 我们把只包含质因子 2、3 和 5 的数称作丑数（Ugly Number）。求按从小到大的顺序的第 n 个丑数。
+
+示例一：
+
+```java
+输入: n = 10
+输出: 12
+解释: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 是前 10 个丑数。
+```
+
+思路：
+
+> ![image-20230221220044435](/Users/zhoujiajie/Library/Application Support/typora-user-images/image-20230221220044435.png)
+
+代码：
+
+```java
+// 动态规划：O(n), O(n)
+public int nthUglyNumber(int n) {
+  int a = 0, b = 0, c = 0;
+  int[] dp = new int[n];
+  dp[0] = 1;
+  for(int i = 1; i < n; i++){
+    int n2 = dp[a] * 2, n3 = dp[b] * 3, n5 = dp[c] * 5;
+    dp[i] = Math.min(Math.min(n2, n3), n5);
+    if(dp[i] == n2) a++;
+    if(dp[i] == n3) b++;
+    if(dp[i] == n5) c++; 
+  }
+  return dp[n-1];
 }
 ```
 
