@@ -9034,36 +9034,151 @@ class Solution {
 // 模拟
 class Solution {
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        ListNode head = null, tail = null;
+        ListNode prev = new ListNode(0);
         int carry = 0;
+        ListNode cur = prev;
+
         while(l1 != null || l2 != null){
-            int n1 = l1 != null ? l1.val : 0;
-            int n2 = l2 != null ? l2.val : 0;
-            int sum = n1 + n2 + carry;
+            int x = l1 != null ? l1.val : 0;
+            int y = l2 != null ? l2.val : 0;
+            int sum = x + y + carry;
             carry = sum / 10;
-            if(head == null){
-                head = tail = new ListNode(sum % 10);
-            }else{
-                tail.next = new ListNode(sum % 10);
-                tail = tail.next;
-            }
+            sum = sum % 10;
+            cur.next = new ListNode(sum);
+            cur = cur.next;
             if(l1 != null){
                 l1 = l1.next;
             }
             if(l2 != null){
                 l2 = l2.next;
             }
-            // 如果有进位，则增添进位
-            if(carry != 0){
-                tail.next = new ListNode(carry);
-            }
         }
-        return head;
+        if(carry == 1){
+            cur.next = new ListNode(1);
+        }
+        return prev.next;
     }
 }
 ```
 
+### [3. 无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)
+
+> 给定一个字符串 `s` ，请你找出其中不含有重复字符的 **最长子串** 的长度。
+
+示例一：
+
+```java
+输入: s = "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+```
+
+示例二：
+
+```java
+输入: s = "pwwkew"
+输出: 3
+解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
+     请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
+```
+
+代码：
+
+```java
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int right = 0, ans = 0;
+        // 哈希集合，记录每个字符是否出现过
+        Set<Character> set = new HashSet<>();
+        for(int i = 0; i < s.length(); i++){
+            // 左指针向右移动一格，移除一个字符
+            if(i != 0)  set.remove(s.charAt(i-1));
+            while(right < s.length() && !set.contains(s.charAt(right))){
+                // 不断地移动右指针
+                set.add(s.charAt(right));
+                right++;
+            }
+            ans = Math.max(ans, right-i);
+        }
+        return ans;
+    }
+}
+```
+
+
+
 # CodeTop
+
+## [3. 无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)
+
+> 给定一个字符串 `s` ，请你找出其中不含有重复字符的 **最长子串** 的长度。
+
+代码：
+
+```java
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int right = 0, ans = 0;
+        // 哈希集合，记录每个字符是否出现过
+        Set<Character> set = new HashSet<>();
+        for(int i = 0; i < s.length(); i++){
+            // 左指针向右移动一格，移除一个字符
+            if(i != 0)  set.remove(s.charAt(i-1));
+            while(right < s.length() && !set.contains(s.charAt(right))){
+                // 不断地移动右指针
+                set.add(s.charAt(right));
+                right++;
+            }
+            ans = Math.max(ans, right-i);
+        }
+        return ans;
+    }
+}
+```
+
+## [206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
+
+> 给你单链表的头节点 `head` ，请你反转链表，并返回反转后的链表。
+
+代码：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+// 迭代
+class Solution {
+    public ListNode reverseList(ListNode head) {
+       if(head == null || head.next == null){
+           return head;
+       }
+       ListNode newHead = reverseList(head.next);
+       head.next.next = head;
+       head.next = null;
+       return newHead;
+    }
+}
+class Solution {
+    public ListNode reverseList(ListNode head) {
+       ListNode pre = null;
+       ListNode cur = head;
+       while(cur != null){
+           ListNode next = cur.next;
+           cur.next = pre;
+           pre = cur;
+           cur = next;
+       }
+       return pre;
+    }
+}
+```
 
 ## 146. LRU缓存
 
