@@ -9063,3 +9063,295 @@ class Solution {
 }
 ```
 
+# CodeTop
+
+## 146. LRU缓存
+
+> 请你设计并实现一个满足  LRU (最近最少使用) 缓存 约束的数据结构。
+> 实现 LRUCache 类：
+> LRUCache(int capacity) 以 正整数 作为容量 capacity 初始化 LRU 缓存
+> int get(int key) 如果关键字 key 存在于缓存中，则返回关键字的值，否则返回 -1 。
+> void put(int key, int value) 如果关键字 key 已经存在，则变更其数据值 value ；如果不存在，则向缓存中插入该组 key-value 。如果插入操作导致关键字数量超过 capacity ，则应该 逐出 最久未使用的关键字。
+> 函数 get 和 put 必须以 O(1) 的平均时间复杂度运行。
+
+思路：
+
+> ![image-20230306144705352](/Users/zhoujiajie/Library/Application Support/typora-user-images/image-20230306144705352.png)
+
+代码：
+
+```java
+class LRUCache {
+
+    class DLinkedNode{
+        int key;
+        int value;
+        DLinkedNode pre;
+        DLinkedNode next;
+        public DLinkedNode(){}
+        public DLinkedNode(int _key, int _value){
+            key = _key;
+            value = _value;
+
+        }
+    }
+
+    private Map<Integer, DLinkedNode> cache = new HashMap<>();
+    private int size;
+    private int capacity;
+    public DLinkedNode head, tail;
+
+    public LRUCache(int capacity) {
+        this.size = 0;
+        this.capacity = capacity;
+        head = new DLinkedNode();
+        tail = new DLinkedNode();
+        head.next = tail;
+        tail.pre = head;
+    }
+    
+    public int get(int key) {
+        DLinkedNode node = cache.get(key);
+        if(node == null){
+            return -1;
+        }
+        moveToHead(node);
+        return node.value;
+    }
+    
+    public void put(int key, int value) {
+        DLinkedNode node = cache.get(key);
+        if(node == null){
+            DLinkedNode newNode = new DLinkedNode(key,value);
+            cache.put(key, newNode);
+            addToHead(newNode);
+            ++size;
+            if(size > capacity){
+                DLinkedNode tail = removeTail();
+                cache.remove(tail.key);
+                --size;
+            }
+        }else{
+            node.value = value;
+            moveToHead(node);
+        }
+    }
+
+    public void addToHead(DLinkedNode node){
+        node.pre = head;
+        node.next = head.next;
+        head.next.pre = node;
+        head.next = node;
+    }
+
+    public void removeNode(DLinkedNode node){
+        node.pre.next = node.next;
+        node.next.pre = node.pre;
+    }
+
+    public void moveToHead(DLinkedNode node){
+        removeNode(node);
+        addToHead(node);
+    }
+
+    public DLinkedNode removeTail(){
+        DLinkedNode res = tail.pre;
+        removeNode(res);
+        return res;
+    }
+}
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache obj = new LRUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */
+```
+
+## [215. 数组中的第K个最大元素](https://leetcode.cn/problems/kth-largest-element-in-an-array/)
+
+> 给定整数数组 nums 和整数 k，请返回数组中第 k 个最大的元素。
+>
+> 请注意，你需要找的是数组排序后的第 k 个最大的元素，而不是第 k 个不同的元素。
+>
+> 你必须设计并实现时间复杂度为 O(n) 的算法解决此问题。
+
+代码：
+
+```java
+// 快速排序，随机快排O(n), O(1)
+import java.util.Random;
+// O(n), O(1)
+class Solution {
+    private final static Random random = new Random(System.currentTimeMillis());
+    public int findKthLargest(int[] nums, int k) {
+        int len = nums.length;
+        int target = len - k;
+        int left = 0;
+        int right = nums.length - 1;
+        while(true){
+            int pivotIndex = partition(nums, left, right);
+            if(pivotIndex == target){
+                return nums[pivotIndex];
+            } else if(pivotIndex < target){
+                left = pivotIndex + 1;
+            }else{
+                right = pivotIndex - 1;
+            }
+        }
+    }
+
+    private int partition(int[] nums, int left, int right){
+        int randomIndex = left + random.nextInt(right - left + 1);
+        swap(nums, left, randomIndex);
+        int pivot = nums[left];
+        int le = left + 1;
+        int ge = right;
+
+        while(true){
+            while(le <= ge && nums[le] < pivot){
+                le++;
+            }
+            while(le <= ge && nums[ge] > pivot){
+                ge--;
+            }
+            if(le >= ge){
+                break;
+            }
+            swap(nums, le, ge);
+            le++;
+            ge--;
+
+        }
+        swap(nums, ge, left);
+        return ge;
+    }
+
+    private void swap(int[] nums, int index1, int index2){
+        int tmp = nums[index1];
+        nums[index1] = nums[index2];
+        nums[index2] = tmp;
+    }
+}
+```
+
+## [25. K 个一组翻转链表](https://leetcode.cn/problems/reverse-nodes-in-k-group/)
+
+> 给你链表的头节点 head ，每 k 个节点一组进行翻转，请你返回修改后的链表。
+>
+> k 是一个正整数，它的值小于或等于链表的长度。如果节点总数不是 k 的整数倍，那么请将最后剩余的节点保持原有顺序。
+>
+> 你不能只是单纯的改变节点内部的值，而是需要实际进行节点交换。
+
+代码：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode reverseKGroup(ListNode head, int k) {
+        ListNode hair = new ListNode(0);
+        hair.next = head;
+        ListNode pre = hair;
+        ListNode end = hair;
+
+        while(end.next != null){
+            for(int i = 0; i < k && end != null; i++){
+                end = end.next;
+            }
+            if(end == null) break;
+            ListNode start = pre.next;
+            ListNode next = end.next;
+            end.next = null;
+            pre.next = reverse(start);
+            start.next = next;
+            pre = start;
+            end = pre;
+        }
+        return hair.next;
+    }
+
+    public ListNode reverse(ListNode head){
+        ListNode pre = null;
+        ListNode cur = head;
+        while(cur != null){
+            ListNode next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+  /*
+  // 迭代方式进行反转链表
+ 		public ListNode reverse(ListNode head){
+        if(head == null || head.next == null){
+            return head;
+        }
+        ListNode newHead = reverse(head.next);
+        head.next.next = head;
+        head.next = null;
+        return newHead;
+    }
+   */
+}
+```
+
+## [15. 三数之和](https://leetcode.cn/problems/3sum/)
+
+> 给你一个整数数组 nums ，判断是否存在三元组 [nums[i], nums[j], nums[k]] 满足 i != j、i != k 且 j != k ，同时还满足 nums[i] + nums[j] + nums[k] == 0 。请
+>
+> 你返回所有和为 0 且不重复的三元组。
+>
+
+代码：
+
+```java
+public List<List<Integer>> threeSum(int[] nums) {
+  int n = nums.length;
+  Arrays.sort(nums);
+  List<List<Integer>> ans = new ArrayList<>();
+  //枚举a
+  for(int first = 0; first < n; first++){
+    //要求与上次枚举的元素不同
+    if(first > 0 && nums[first] == nums[first-1]){
+      continue;
+    }
+    //指针c最初指向数组最右端
+    int third = n - 1;
+    int target = -nums[first];
+    //枚举b
+    for(int second = first + 1; second < n; second++){
+      //要求与上次枚举的元素不同
+      if(second > first + 1 && nums[second] == nums[second - 1]){
+        continue;
+      }
+      //保证指针b在指针c的左侧
+      while(second < third && nums[second] + nums[third] > target){
+        third--;
+      }
+      if(second == third){
+        break;
+      }
+      if(nums[second] + nums[third] == target){
+        List<Integer> list = new ArrayList<>();
+        list.add(nums[first]);
+        list.add(nums[second]);
+        list.add(nums[third]);
+        ans.add(list);
+      }
+    }
+  }
+  return ans;
+}
+```
+
