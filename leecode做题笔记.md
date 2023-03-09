@@ -9470,3 +9470,168 @@ public List<List<Integer>> threeSum(int[] nums) {
 }
 ```
 
+## [53. 最大子数组和](https://leetcode.cn/problems/maximum-subarray/)
+
+> 给你一个整数数组 `nums` ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+>
+> **子数组** 是数组中的一个连续部分。
+
+代码：
+
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int pre = 0, maxAns = nums[0];
+        for(int num : nums){
+            pre = Math.max(num, pre + num);
+            maxAns = Math.max(pre, maxAns);
+        }
+        return maxAns;
+    }
+}
+```
+
+## [912. 排序数组](https://leetcode.cn/problems/sort-an-array/)
+
+> 给你一个整数数组 `nums`，请你将该数组升序排列。
+
+代码：
+
+```java
+// 随机快排：时间复杂度O(nlogn)
+class Solution {
+    private final static Random random = new Random(System.currentTimeMillis());
+
+    public int[] sortArray(int[] nums) {
+        quickSort(nums, 0, nums.length - 1);
+        return nums;
+    }
+
+    public void quickSort(int[] nums, int left, int right){
+        if(left < right){
+            int pos = partition(nums, left, right);
+            quickSort(nums, left, pos-1);
+            quickSort(nums, pos+1, right);
+        }
+    }
+
+    public int partition(int[] nums, int left, int right){
+        int randomIndex = left + random.nextInt(right - left + 1);
+        swap(nums, left, randomIndex);
+        int pivot = nums[left];
+        int le = left + 1;
+        int ge = right;
+        while(true){
+            while(le <= ge && nums[le] < pivot){
+                le++;
+            }
+            while(le <= ge && nums[ge] > pivot){
+                ge--;
+            }
+            if(le >= ge){
+                break;
+            }
+            swap(nums, le, ge);
+            le++;
+            ge--;
+        }
+        swap(nums, ge, left);
+        return ge;
+    }
+
+    public void swap(int[] nums, int i, int j){
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}
+// 堆排序，建立大根堆：O(nlogn), O(1)
+class Solution {
+    public int[] sortArray(int[] nums) {
+        heapSort(nums);
+        return nums;
+    }
+
+    public void heapSort(int[] nums) {
+        int len = nums.length - 1;
+        buildMaxHeap(nums, len);
+        for (int i = len; i >= 1; --i) {
+            swap(nums, i, 0);
+            len -= 1;
+            maxHeapify(nums, 0, len);
+        }
+    }
+
+    public void buildMaxHeap(int[] nums, int len) {
+        for (int i = len / 2; i >= 0; --i) {
+            maxHeapify(nums, i, len);
+        }
+    }
+
+    public void maxHeapify(int[] nums, int i, int len) {
+        for (; (i << 1) + 1 <= len;) {
+            int lson = (i << 1) + 1;
+            int rson = (i << 1) + 2;
+            int large;
+            if (lson <= len && nums[lson] > nums[i]) {
+                large = lson;
+            } else {
+                large = i;
+            }
+            if (rson <= len && nums[rson] > nums[large]) {
+                large = rson;
+            }
+            if (large != i) {
+                swap(nums, i, large);
+                i = large;
+            } else {
+                break;
+            }
+        }
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}
+// 归并排序：O(nlogn), O(n)
+class Solution {
+    int[] tmp;
+
+    public int[] sortArray(int[] nums) {
+        tmp = new int[nums.length];
+        mergeSort(nums, 0, nums.length - 1);
+        return nums;
+    }
+
+    public void mergeSort(int[] nums, int l, int r) {
+        if (l >= r) {
+            return;
+        }
+        int mid = (l + r) >> 1;
+        mergeSort(nums, l, mid);
+        mergeSort(nums, mid + 1, r);
+        int i = l, j = mid + 1;
+        int cnt = 0;
+        while (i <= mid && j <= r) {
+            if (nums[i] <= nums[j]) {
+                tmp[cnt++] = nums[i++];
+            } else {
+                tmp[cnt++] = nums[j++];
+            }
+        }
+        while (i <= mid) {
+            tmp[cnt++] = nums[i++];
+        }
+        while (j <= r) {
+            tmp[cnt++] = nums[j++];
+        }
+        for (int k = 0; k < r - l + 1; ++k) {
+            nums[k + l] = tmp[k];
+        }
+    }
+}
+```
+
