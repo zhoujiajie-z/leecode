@@ -9635,3 +9635,158 @@ class Solution {
 }
 ```
 
+## [21. 合并两个有序链表](https://leetcode.cn/problems/merge-two-sorted-lists/)
+
+> 将两个升序链表合并为一个新的 **升序** 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。 
+
+代码：
+
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        if(list1 == null && list2 == null)  return null;
+        if(list1 == null)   return list2;
+        if(list2 == null)   return list1;
+        ListNode head = new ListNode(0);
+        ListNode cur = head;
+        while(list1 != null && list2 != null){
+            if(list1.val <= list2.val){
+                cur.next = list1;
+                list1 = list1.next;
+            }else{
+                cur.next = list2;
+                list2 = list2.next;
+            }
+            cur = cur.next;
+        }
+        if(list1 != null)  cur.next = list1;
+        if(list2 != null) cur.next = list2;
+        return head.next;
+    }
+}
+// 迭代
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        if(list1 == null && list2 == null)  return null;
+        if(list1 == null)   return list2;
+        if(list2 == null)   return list1;
+        if(list1.val < list2.val){
+            list1.next = mergeTwoLists(list1.next, list2);
+            return list1;
+        }else{
+            list2.next = mergeTwoLists(list2.next, list1);
+            return list2;
+        }
+    }
+}
+```
+
+## [1. 两数之和](https://leetcode.cn/problems/two-sum/)
+
+> 给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出 和为目标值 target  的那 两个 整数，并返回它们的数组下标。
+>
+> 你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。
+>
+> 你可以按任意顺序返回答案。
+
+代码：
+
+```java
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> res = new HashMap<>();
+        for(int i = 0; i < nums.length; i++){
+            if(res.containsKey(target - nums[i])){
+                return new int[]{i, res.get(target-nums[i])};
+            }else{
+                res.put(nums[i], i);
+            }
+        }
+        return new int[]{-1,-1};
+    }
+}
+```
+
+## [102. 二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/)
+
+> 给你二叉树的根节点 `root` ，返回其节点值的 **层序遍历** 。 （即逐层地，从左到右访问所有节点）。
+
+代码：
+
+```java
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> ret = new ArrayList<List<Integer>>();
+        if (root == null) {
+            return ret;
+        }
+
+        Queue<TreeNode> queue = new LinkedList<TreeNode>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            List<Integer> level = new ArrayList<Integer>();
+            int currentLevelSize = queue.size();
+            for (int i = 1; i <= currentLevelSize; ++i) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            ret.add(level);
+        }
+        
+        return ret;
+    }
+}
+```
+
+## [33. 搜索旋转排序数组](https://leetcode.cn/problems/search-in-rotated-sorted-array/)
+
+> 整数数组 nums 按升序排列，数组中的值 互不相同 。
+>
+> 在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,5,6,7] 在下标 3 处经旋转后可能变为 [4,5,6,7,0,1,2] 。
+>
+> 给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的下标，否则返回 -1 。
+>
+> 你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。
+
+代码：
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        if(nums == null || nums.length == 0){
+            return -1;
+        }
+        if(nums.length == 1){
+            return nums[0] == target ? 0 : -1;
+        }
+        int left = 0, right = nums.length-1;
+        while(left <= right){
+            int mid = left + ((right - left) >> 1);
+            if(target == nums[mid]){
+                return mid;
+            }
+            if(nums[0] <= nums[mid]){
+                if(target >= nums[0] && target < nums[mid]){
+                    right = mid - 1;
+                }else if(target < nums[0] || target > nums[mid]){
+                    left = mid + 1;
+                }
+            }else{
+                if(target < nums[mid] || target > nums[nums.length - 1]){
+                    right = mid - 1;
+                }else if(target > nums[mid] && target < nums[0]){
+                    left = left + 1;
+                }
+            }
+        }
+        return -1;
+    }
+}
+```
+
