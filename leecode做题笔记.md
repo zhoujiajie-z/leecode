@@ -9790,3 +9790,275 @@ class Solution {
 }
 ```
 
+## [20. 有效的括号](https://leetcode.cn/problems/valid-parentheses/)
+
+> 给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串 s ，判断字符串是否有效。
+>
+> 有效字符串需满足：
+>
+> 左括号必须用相同类型的右括号闭合。
+> 左括号必须以正确的顺序闭合。
+> 每个右括号都有一个对应的相同类型的左括号。
+
+代码：
+
+```java
+class Solution {
+    public boolean isValid(String s) {
+        int length = s.length();
+         if(length % 2 == 1){
+             return false;
+         }
+         Map<Character, Character> pairs = new HashMap<Character, Character>();
+         pairs.put(')', '(');
+         pairs.put(']', '[');
+         pairs.put('}', '{');
+         Deque<Character> stack = new LinkedList<Character>();
+         for(int i = 0; i < length; i++){
+             char ch = s.charAt(i);
+             if(pairs.containsKey(ch)){
+                 if(stack.isEmpty() || stack.pop() != pairs.get(ch)){
+                     return false;
+                 }
+             }else{
+                 stack.push(ch);
+             }
+         }
+         return stack.isEmpty();
+    }
+}
+```
+
+## [5. 最长回文子串](https://leetcode.cn/problems/longest-palindromic-substring/)
+
+> 给你一个字符串 `s`，找到 `s` 中最长的回文子串。
+>
+> 如果字符串的反序与原始字符串相同，则该字符串称为回文字符串。
+
+代码：
+
+```java
+class Solution {
+    public String longestPalindrome(String s) {
+        int len = s.length();
+        if(len < 2){
+            return s;
+        }
+        int maxLen = 1;
+        int begin = 0;
+        // dp[i][j] 表示 s[i..j] 是否是回文串
+        boolean[][] dp = new boolean[len][len];
+        for(int i = 0; i < len; i++){
+            dp[i][i] = true;
+        }
+        char[] chars = s.toCharArray();
+        for(int L = 2; L <= len; L++){
+            for(int i = 0; i < len; i++){
+                int j = L + i - 1;
+                if(j >= len){
+                    break;
+                }
+                if(chars[i] != chars[j]){
+                    dp[i][j] = false;
+                }else{
+                    if(j - i < 3){
+                        dp[i][j] = true;
+                    }else{
+                        dp[i][j] = dp[i+1][j-1];
+                    }
+                }
+                if(dp[i][j] && L > maxLen){
+                    maxLen = L;
+                    begin = i;
+                }
+            }
+        }
+        return s.substring(begin, begin + maxLen);
+    }
+}
+```
+
+## [121. 买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/)
+
+> 给定一个数组 prices ，它的第 i 个元素 prices[i] 表示一支给定股票第 i 天的价格。
+>
+> 你只能选择 某一天 买入这只股票，并选择在 未来的某一个不同的日子 卖出该股票。设计一个算法来计算你所能获取的最大利润。
+>
+> 返回你可以从这笔交易中获取的最大利润。如果你不能获取任何利润，返回 0 。
+
+代码：
+
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        int minPrice = Integer.MAX_VALUE;
+        int profit = 0;
+        for(int price : prices){
+            if(price < minPrice){
+                minPrice = price;
+            }else{
+                profit = Math.max(profit, price - minPrice);
+            }
+        }
+        return profit;
+    }
+}
+```
+
+## [141. 环形链表](https://leetcode.cn/problems/linked-list-cycle/)
+
+> 给你一个链表的头节点 head ，判断链表中是否有环。
+>
+> 如果链表中有某个节点，可以通过连续跟踪 next 指针再次到达，则链表中存在环。 为了表示给定链表中的环，评测系统内部使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。注意：pos 不作为参数进行传递 。仅仅是为了标识链表的实际情况。
+>
+> 如果链表中存在环 ，则返回 true 。 否则，返回 false 。
+
+代码：
+
+```java
+// 哈希表：O(n), O(1)
+class Solution {
+    public boolean hasCycle(ListNode head) {
+        if(head == null || head.next == null)   return false;
+        Set<ListNode> set = new HashSet<>();
+        ListNode cur = head;
+        while(cur != null){
+            if(set.add(cur)){
+                cur = cur.next;
+            }else{
+                return true;
+            }
+        }
+        return false;
+    }
+}
+// 快慢指针：O(n), O(1)
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        if(head == null || head.next == null)   return false;
+        ListNode slow = head;
+        ListNode fast = head.next;
+        while(fast != slow){
+            if(fast == null || fast.next == null){
+                return false;
+            }
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return true;
+    }
+}
+```
+
+## [103. 二叉树的锯齿形层序遍历](https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/)
+
+> 给你二叉树的根节点 `root` ，返回其节点值的 **锯齿形层序遍历** 。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。
+
+代码：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+// 广度优先遍历：O(N), O(N)
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> res = new ArrayList<>();
+        if(root == null)    return res;
+        boolean readLeft = true;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(root);
+        while(!queue.isEmpty()){
+            int size = queue.size();
+            Deque<Integer> list = new ArrayDeque<>();
+            while(size != 0){
+                TreeNode node = queue.poll();
+                size--;
+                if(readLeft){
+                    list.offerLast(node.val);
+                }else{
+                    list.offerFirst(node.val);
+                }
+                if(node.left != null){
+                    queue.offer(node.left);
+                }
+                if(node.right != null){
+                    queue.offer(node.right);
+                }
+            }
+            res.add(new LinkedList<Integer>(list));
+            readLeft = !readLeft;
+        }
+        return res;
+    }
+}
+```
+
+## [88. 合并两个有序数组](https://leetcode.cn/problems/merge-sorted-array/)
+
+> 给你两个按 非递减顺序 排列的整数数组 nums1 和 nums2，另有两个整数 m 和 n ，分别表示 nums1 和 nums2 中的元素数目。
+>
+> 请你 合并 nums2 到 nums1 中，使合并后的数组同样按 非递减顺序 排列。
+>
+> 注意：最终，合并后数组不应由函数返回，而是存储在数组 nums1 中。为了应对这种情况，nums1 的初始长度为 m + n，其中前 m 个元素表示应合并的元素，后 n 个元素为 0 ，应忽略。nums2 的长度为 n 。
+
+代码：
+
+```java
+// 双指针：O(m+n), O(m+n)
+class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        int p1 = 0, p2 = 0;
+        int[] sorted = new int[m + n];
+        int cur;
+        while(p1 < m || p2 < n){
+            if(p1 == m){
+                cur = nums2[p2++];
+            }else if(p2 == n){
+                cur = nums1[p1++];
+            }else if(nums1[p1] <= nums2[p2]){
+                cur = nums1[p1++];
+            }else{
+                cur = nums2[p2++];
+            }
+            sorted[p1 + p2 - 1] = cur;
+        }
+        for(int i = 0; i < sorted.length; i++){
+            nums1[i] = sorted[i];
+        }
+    }
+}
+// 逆向双指针: O(M+N), O(1)
+class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        int p1 = m - 1, p2 = n -1;
+        int tail = m + n -1;
+        int cur;
+        while(p1 >= 0 || p2 >= 0){
+            if(p1 == -1){
+                cur = nums2[p2--];
+            }else if(p2 == -1){
+                cur = nums1[p1--];
+            }else if (nums2[p2] >= nums1[p1]){
+                cur = nums2[p2--];
+            }else{
+                cur = nums1[p1--];
+            }
+            nums1[tail--] = cur;
+        }
+    }
+}
+```
+
