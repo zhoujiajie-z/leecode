@@ -10062,3 +10062,203 @@ class Solution {
 }
 ```
 
+## [236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
+
+> 给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
+>
+> 百度百科中最近公共祖先的定义为：“对于有根树 T 的两个节点 p、q，最近公共祖先表示为一个节点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”
+
+代码：
+
+```java
+// 递归：O(n), O(n)
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    TreeNode ans;
+
+    public Solution(){
+        this.ans = null;
+    }
+
+    public boolean dfs(TreeNode root, TreeNode p, TreeNode q){
+        if(root == null)    return false;
+        boolean lson = dfs(root.left, p, q);
+        boolean rson = dfs(root.right, p, q);
+        if((lson && rson) || (root.val == q.val || root.val == p.val) && (lson || rson)){
+            ans = root;
+        }
+        return lson || rson || (root.val == p.val || root.val == q.val);
+    }
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        dfs(root, p, q);
+        return ans;
+    }
+}
+// 使用HashMap保存父节点: O(n), O(n)
+class Solution {
+    Map<Integer, TreeNode> parent = new HashMap<>();
+    Set<Integer> visited = new HashSet<>();
+
+    public void dfs(TreeNode root){
+        if(root.left != null){
+            parent.put(root.left.val, root);
+            dfs(root.left);
+        }
+        if(root.right != null){
+            parent.put(root.right.val, root);
+            dfs(root.right);
+        }
+    }
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        dfs(root);
+        while(p != null){
+            visited.add(p.val);
+            p = parent.get(p.val);
+        }
+        while(q != null){
+            if(visited.contains(q.val)){
+                return q;
+            }
+            q = parent.get(q.val);
+        }
+        return null;
+    }
+}
+```
+
+## [46. 全排列](https://leetcode.cn/problems/permutations/)
+
+> 给定一个不含重复数字的数组 `nums` ，返回其 *所有可能的全排列* 。你可以 **按任意顺序** 返回答案。
+
+```java
+// 回溯法
+class Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        List<Integer> output = new ArrayList<>();
+        for(int num : nums){
+            output.add(num);
+        }
+        int n = nums.length;
+        backtrack(n, output, res, 0);
+        return res;
+    }
+
+    public void backtrack(int n, List<Integer> output, List<List<Integer>> res, int first){
+        if(first == n){
+            res.add(new ArrayList<Integer>(output));
+        }
+        for(int i = first; i < n; i++){
+            Collections.swap(output, first, i);
+            backtrack(n, output, res, first+1);
+            Collections.swap(output, first, i);
+        }
+    }
+}
+```
+
+## [160. 相交链表](https://leetcode.cn/problems/intersection-of-two-linked-lists/)
+
+> 给你两个单链表的头节点 headA 和 headB ，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回 null 。
+>
+> 图示两个链表在节点 c1 开始相交：
+>
+> ![image-20230314200233618](/Users/zhoujiajie/Documents/leecode/leecode做题笔记.assets/image-20230314200233618.png)
+>
+> 题目数据 **保证** 整个链式结构中不存在环。
+>
+> **注意**，函数返回结果后，链表必须 **保持其原始结构** 。
+
+代码：
+
+```java
+// 先遍历较长链表直到二者长度一致的地方，开始共同前进查看是否有公共部分
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if(headA == null || headB == null) {
+            return null;
+        }
+        int n = 0;
+        ListNode cur1 = headA;
+        ListNode cur2 = headB;
+        while(cur1.next != null){
+            n++;
+            cur1 = cur1.next;
+        }
+        while(cur2.next != null){
+            n--;
+            cur2 = cur2.next;
+        }
+        if(cur1 != cur2){
+            return null;
+        }
+        cur1 = n >= 0 ? headA : headB;
+        cur2 = cur1 == headA ? headB : headA;
+        n = Math.abs(n);
+        while(n != 0){
+            cur1 = cur1.next;
+            n--;
+        }
+        while(cur1 != cur2){
+            cur1 = cur1.next;
+            cur2 = cur2.next;
+        }
+        return cur1;
+    }
+}
+// 哈希集合
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        Set<ListNode> set = new HashSet<>();
+        ListNode cur = headA;
+        while(cur != null){
+            set.add(cur);
+            cur = cur.next;
+        }
+        ListNode temp = headB;
+        while(temp != null){
+            if(set.contains(temp)){
+                return temp;
+            }
+            temp = temp.next;
+        }
+        return null;
+    }
+}
+// 双指针
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if(headA == null || headB == null){
+            return null;
+        }
+        ListNode pa = headA;
+        ListNode pb = headB;
+        while(pa != pb){
+            pa = pa == null ? headB : pa.next;
+            pb = pb == null ? headA : pb.next;
+        }
+        return pa;
+    }
+}
+```
+
