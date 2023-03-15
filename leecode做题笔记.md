@@ -10262,3 +10262,208 @@ public class Solution {
 }
 ```
 
+## [54. 螺旋矩阵](https://leetcode.cn/problems/spiral-matrix/)
+
+> 给你一个 `m` 行 `n` 列的矩阵 `matrix` ，请按照 **顺时针螺旋顺序** ，返回矩阵中的所有元素。
+
+代码：
+
+```java
+// 按层模拟：O(mn), O(1)
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        List<Integer> res = new ArrayList<>();
+        if(matrix == null || matrix.length == 0 || matrix[0].length == 0){
+            return res;
+        }
+        int top = 0, bottom = matrix.length - 1;
+        int left = 0, right = matrix[0].length - 1;
+        while(left <= right && top <= bottom){
+            for(int column = left; column <= right; column++){
+                res.add(matrix[top][column]);
+            }
+            for(int row = top+1; row <= bottom; row++){
+                res.add(matrix[row][right]);
+            }
+            if(left < right && top < bottom){
+                for(int column = right - 1; column >= left; column--){
+                    res.add(matrix[bottom][column]);
+                }
+                for(int row = bottom - 1; row > top; row--){
+                    res.add(matrix[row][left]);
+                }
+            }
+            left++;
+            right--;
+            top++;
+            bottom--;
+        }
+        return res;
+    }
+}
+```
+
+## [23. 合并K个升序链表](https://leetcode.cn/problems/merge-k-sorted-lists/)
+
+> 给你一个链表数组，每个链表都已经按升序排列。
+>
+> 请你将所有链表合并到一个升序链表中，返回合并后的链表。
+
+代码：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+// 顺序合并
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        ListNode ans = null;
+        for(ListNode list : lists){
+            ans = mergeTwoList(ans, list);
+        }
+        return ans;
+    }
+
+    public ListNode merge(ListNode[] lists, int left, int right){
+        if(left == right){
+            return lists[left];
+        }
+        if(left > right){
+            return null;
+        }
+        int mid = left + (right - left) / 2;
+        return mergeTwoList(merge(lists, left, mid), merge(lists, mid+1, right));
+    }
+
+    public ListNode mergeTwoList(ListNode a, ListNode b){
+        if(a == null || b == null){
+            return a == null ? b : a;
+        }
+        ListNode head = new ListNode(-1);
+        ListNode cur = head, pa = a, pb = b;
+        while(pa != null && pb != null){
+            if(pa.val <= pb.val){
+                cur.next = pa;
+                pa = pa.next;
+            } else{
+                cur.next = pb;
+                pb = pb.next;
+            }
+            cur = cur.next;
+        }
+        if(pa != null){
+            cur.next = pa;
+        }
+        if(pb != null){
+            cur.next = pb;
+        }
+        return head.next;
+    }
+}
+// 分治合并
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        return merge(lists, 0, lists.length - 1);
+    }
+
+    public ListNode merge(ListNode[] lists, int left, int right){
+        if(left == right){
+            return lists[left];
+        }
+        if(left > right){
+            return null;
+        }
+        int mid = left + (right - left) / 2;
+        return mergeTwoList(merge(lists, left, mid), merge(lists, mid+1, right));
+    }
+
+    public ListNode mergeTwoList(ListNode a, ListNode b){
+        if(a == null || b == null){
+            return a == null ? b : a;
+        }
+        ListNode head = new ListNode(-1);
+        ListNode cur = head, pa = a, pb = b;
+        while(pa != null && pb != null){
+            if(pa.val <= pb.val){
+                cur.next = pa;
+                pa = pa.next;
+            } else{
+                cur.next = pb;
+                pb = pb.next;
+            }
+            cur = cur.next;
+        }
+        if(pa != null){
+            cur.next = pa;
+        }
+        if(pb != null){
+            cur.next = pb;
+        }
+        return head.next;
+    }
+}
+// 合并两个有序列表的另一种写法
+	public ListNode mergeTwoList(ListNode a, ListNode b){
+        if(a == null || b == null){
+            return a == null ? b : a;
+        }
+        if(a.val <= b.val){
+            a.next = mergeTwoList(a.next, b);
+            return a;
+        } else {
+            b.next = mergeTwoList(a, b.next);
+            return b;
+        }
+    }
+```
+
+## [92. 反转链表 II](https://leetcode.cn/problems/reverse-linked-list-ii/)
+
+> 给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表
+
+代码：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+// 一次遍历，O(n), O(1)
+class Solution {
+    public ListNode reverseBetween(ListNode head, int left, int right) {
+        ListNode res = new ListNode(-1);
+        res.next = head;
+        ListNode pre = res;
+        for(int i = 0; i < left - 1; i++){
+            pre = pre.next;
+        }
+        ListNode cur = pre.next;
+        ListNode next;
+        for(int i = left - 1; i < right - 1; i++){
+            next = cur.next;
+            cur.next = next.next;
+            next.next = pre.next;
+            pre.next = next;
+        }
+        return res.next;
+    }
+
+}
+```
+
+
+
