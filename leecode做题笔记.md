@@ -10465,5 +10465,129 @@ class Solution {
 }
 ```
 
+## [415. 字符串相加](https://leetcode.cn/problems/add-strings/)
 
+> 给定两个字符串形式的非负整数 num1 和num2 ，计算它们的和并同样以字符串形式返回。
+>
+> 你不能使用任何內建的用于处理大整数的库（比如 BigInteger）， 也不能直接将输入的字符串转换为整数形式。
+
+代码：
+
+```java
+class Solution {
+    public String addStrings(String num1, String num2) {
+        int i = num1.length() - 1;
+        int j = num2.length() - 1;
+        int add = 0;
+        StringBuffer str = new StringBuffer();
+        while(i >= 0 || j >= 0 || add != 0){
+            int x = i >= 0 ? num1.charAt(i) - '0' : 0;
+            int y = j >= 0 ? num2.charAt(j) - '0' : 0;
+            int result = x + y + add;
+            add = result / 10;
+            str.append(result % 10);
+            i--;
+            j--;
+        }
+        str.reverse();
+        return str.toString();
+    }
+}
+```
+
+## [142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/)
+
+> 给定一个链表的头节点  head ，返回链表开始入环的第一个节点。 如果链表无环，则返回 null。
+>
+> 如果链表中有某个节点，可以通过连续跟踪 next 指针再次到达，则链表中存在环。 为了表示给定链表中的环，评测系统内部使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。如果 pos 是 -1，则在该链表中没有环。注意：pos 不作为参数进行传递，仅仅是为了标识链表的实际情况。
+>
+> 不允许修改 链表。
+
+代码：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        if(head == null || head.next == null){
+            return null;
+        }
+        ListNode slow = head, fast = head;
+        while(true){
+            if(fast.next == null || fast.next.next == null){
+                return null;
+            }
+            fast = fast.next.next;
+            slow = slow.next;
+            if(slow == fast)    break;
+        }
+        fast = head;
+        while(slow != fast){
+            slow = slow.next;
+            fast = fast.next;
+        }
+        return fast;
+    }
+}
+```
+
+## [300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)
+
+> 给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。
+>
+> 子序列 是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，[3,6,2,7] 是数组 [0,3,1,6,2,2,7] 的子序列。
+
+代码：
+
+```java
+// 二分法+动态规划:O(NlogN), O(N)
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        int[] tails = new int[nums.length];
+        int res = 0;
+        for(int num : nums){
+            int i = 0, j = res;
+            while(i < j){
+                int m = (i + j) / 2;
+                if(tails[m] < num){
+                    i = m + 1;
+                }else{
+                    j = m;
+                }
+            }
+            tails[i] = num;
+            if(res == j)    res++;
+        }
+        return res;
+    }
+}
+// 动态规划:O(N^2), O(N)
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        int len = nums.length;
+        int[] dp = new int[len];
+        Arrays.fill(dp, 1);
+        int ans = 0;
+        for(int i = 0; i < len; i++){
+            for(int j = 0; j < i; j++){
+                if(nums[i] > nums[j]){
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+            }
+            ans = Math.max(ans, dp[i]);
+        }
+        return ans;
+    }
+}
+```
 
