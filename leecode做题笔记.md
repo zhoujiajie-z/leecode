@@ -10553,20 +10553,34 @@ public class Solution {
 // 二分法+动态规划:O(NlogN), O(N)
 class Solution {
     public int lengthOfLIS(int[] nums) {
-        int[] tails = new int[nums.length];
-        int res = 0;
-        for(int num : nums){
-            int i = 0, j = res;
-            while(i < j){
-                int m = (i + j) / 2;
-                if(tails[m] < num){
-                    i = m + 1;
-                }else{
-                    j = m;
+        /** 二分查找 */
+        // 维护一个 cell 数组（递增），遍历 nums;
+        // 若当前元素 num 比 cell 中最后一个元素大，则直接将其插入 cell;
+        // 否则，将 cell 中比 num 大的第一个元素替换为 num
+        int size = nums.length;
+        if (size < 2) return size;
+        int[] arr = new int[size];
+        arr[0] = nums[0];
+        int res = 1; // arr数组中实际存入的值的数量，即递增子序列的长度
+        for (int i = 1; i < size; i++) {
+            // 若当前元素 num 比 cell 中最后一个元素大
+            if (nums[i] > arr[res - 1]) {
+                arr[res] = nums[i];
+                res++;
+                continue;
+            }
+            // 否则，二分查找 cell 中比 num 大的第一个元素
+            int left = 0, right = res - 1, mid;
+            while (left <= right) {
+                mid = left + (right - left) / 2;
+                // left指针最终指向的就是比 num 大的第一个元素
+                if (arr[mid] >= nums[i]) {
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
                 }
             }
-            tails[i] = num;
-            if(res == j)    res++;
+            arr[left] = nums[i];
         }
         return res;
     }
@@ -10587,6 +10601,208 @@ class Solution {
             ans = Math.max(ans, dp[i]);
         }
         return ans;
+    }
+}
+```
+
+## [42. 接雨水](https://leetcode.cn/problems/trapping-rain-water/)
+
+> 给定 `n` 个非负整数表示每个宽度为 `1` 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+
+代码：
+
+```java
+// 动态规划：O(N), O(N)
+class Solution {
+    public int trap(int[] height) {
+        int len = height.length, ans = 0;
+        int[] maxLeft = new int[len];
+        int[] maxRight = new int[len];
+        maxLeft[0] = height[0];
+        maxRight[len-1] = height[len-1];
+        for(int i = 1; i < len; i++){
+            maxLeft[i] = Math.max(maxLeft[i-1], height[i]);
+        }
+
+        for(int i = len - 2; i >= 0; i--){
+            maxRight[i] = Math.max(maxRight[i+1], height[i]);
+        }
+
+        for(int i = 0; i < len; i++){
+            ans += ( Math.min(maxLeft[i], maxRight[i]) - height[i] );
+        }
+        return ans;
+    }
+}
+//双指针：O(n), O(1)
+class Solution {
+    public int trap(int[] height) {
+        int left = 0, right = height.length - 1;
+        int ans = 0;
+        int maxLeft = 0, maxRight = 0;
+        while(left < right){
+            maxLeft = Math.max(maxLeft, height[left]);
+            maxRight = Math.max(maxRight, height[right]);
+
+            if(maxLeft < maxRight){
+                ans += maxLeft - height[left];
+                left++;
+            } else {
+                ans += maxRight - height[right];
+                right--;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+## [143. 重排链表](https://leetcode.cn/problems/reorder-list/)
+
+> 给定一个单链表 L 的头节点 head ，单链表 L 表示为：
+>
+> L0 → L1 → … → Ln - 1 → Ln
+> 请将其重新排列后变为：
+>
+> L0 → Ln → L1 → Ln - 1 → L2 → Ln - 2 → …
+> 不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。
+
+代码：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+// 线性表：O(n), O(n)
+class Solution {
+    public void reorderList(ListNode head) {
+        if(head == null){
+            return;
+        }
+        List<ListNode> list = new ArrayList<>();
+        while(head != null){
+            list.add(head);
+            head = head.next;
+        }
+        int i = 0, j = list.size() - 1;
+        while(i < j){
+            list.get(i).next = list.get(j);
+            i++;
+            if(i == j)  break;
+            list.get(j).next = list.get(i);
+            j--;
+        }
+        list.get(i).next = null;
+    }
+}
+// 寻找链表中点 + 链表逆序 + 合并链表:O(n), O(1)
+class Solution {
+    public void reorderList(ListNode head) {
+        if(head == null){
+            return;
+        }
+        ListNode mid = middleNode(head);
+        ListNode l1 = head;
+        ListNode l2 = mid.next;
+        mid.next = null;
+        l2 = reverse(l2);
+        mergeList(l1, l2);
+    }
+
+    public ListNode middleNode(ListNode head){
+        ListNode fast = head, slow = head;
+        while(fast.next != null && fast.next.next != null){
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow;
+    }
+
+    public ListNode reverse(ListNode head){
+        ListNode pre = null, cur = head;
+        ListNode next;
+        while(cur != null){
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+
+    public void mergeList(ListNode list1, ListNode list2){
+        ListNode temp1;
+        ListNode temp2;
+        while(list1 != null && list2 != null){
+            temp1 = list1.next;
+            temp2 = list2.next;
+            list1.next = list2;
+            list1 = temp1;
+            list2.next = list1;
+            list2 = temp2;
+        }
+    }
+}
+```
+
+## [124. 二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/)
+
+> 路径 被定义为一条从树中任意节点出发，沿父节点-子节点连接，达到任意节点的序列。同一个节点在一条路径序列中 至多出现一次 。该路径 至少包含一个 节点，且不一定经过根节点。
+>
+> 路径和 是路径中各节点值的总和。
+>
+> 给你一个二叉树的根节点 root ，返回其 最大路径和 。
+
+代码：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+// 递归：O(n), O(n)
+class Solution {
+    int maxNum = Integer.MIN_VALUE;
+
+    public int maxPathSum(TreeNode root) {
+        maxGain(root);
+        return maxNum;
+    }
+
+    public int maxGain(TreeNode node){
+        if(node == null)    return 0;
+        
+        // 递归计算左右子节点的最大贡献值
+        // 只有在最大贡献值大于 0 时，才会选取对应子节点
+        int leftGain = Math.max(maxGain(node.left), 0);
+        int rightGain = Math.max(maxGain(node.right), 0);
+
+        // 节点的最大路径和取决于该节点的值与该节点的左右子节点的最大贡献值
+        int priceNewpath = node.val + leftGain + rightGain;
+
+        // 更新答案
+        maxSum = Math.max(maxSum, priceNewpath);
+
+        // 返回节点的最大贡献值
+        return node.val + Math.max(leftGain, rightGain);
     }
 }
 ```
