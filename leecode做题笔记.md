@@ -10807,3 +10807,255 @@ class Solution {
 }
 ```
 
+## [94. 二叉树的中序遍历](https://leetcode.cn/problems/binary-tree-inorder-traversal/)
+
+> 给定一个二叉树的根节点 `root` ，返回 *它的 **中序** 遍历* 。
+
+代码：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+// 递归：O(n), O(n)
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        in(root, res);
+        return res;
+    }
+
+    public void in(TreeNode root, List<Integer> res){
+        if(root == null){
+            return;
+        }
+        in(root.left, res);
+        res.add(root.val);
+        in(root.right, res);
+    }
+}
+// 非递归：O(n), O(n)
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        Stack<TreeNode> stack = new Stack<>();
+        while(!stack.isEmpty() || root != null){
+            if(root != null){
+                stack.push(root);
+                root = root.left;
+            }else{
+                root = stack.pop();
+                res.add(root.val);
+                root = root.right;
+            }
+        }
+        return res;
+    }
+}
+```
+
+## [19. 删除链表的倒数第 N 个结点](https://leetcode.cn/problems/remove-nth-node-from-end-of-list/)
+
+> 给你一个链表，删除链表的倒数第 `n` 个结点，并且返回链表的头结点。
+
+代码：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode hair = new ListNode(0, head);
+        ListNode cur = hair;
+        int len = getLength(head);
+        for(int i = 0; i < len - n; i++){
+            cur = cur.next;
+        }
+        cur.next = cur.next.next;
+        return hair.next;
+    }
+  
+    public int getLength(ListNode head){
+        int len = 0;
+        while(head != null){
+            len++;
+            head = head.next;
+        }
+        return len;
+    }
+}
+// 双指针
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode hair = new ListNode(0, head);
+        ListNode slow = hair, fast = head;
+        for(int i = 0; i < n; i++){
+            fast = fast.next;
+        }
+        while(fast != null){
+            slow = slow.next;
+            fast = fast.next;
+        }
+        slow.next = slow.next.next;
+        return hair.next;
+    }
+}
+```
+
+## [72. 编辑距离](https://leetcode.cn/problems/edit-distance/)
+
+> 给你两个单词 word1 和 word2， 请返回将 word1 转换成 word2 所使用的最少操作数  。
+>
+> 你可以对一个单词进行如下三种操作：
+>
+> 插入一个字符
+> 删除一个字符
+> 替换一个字符
+
+代码：
+
+```java
+class Solution {
+    public int minDistance(String word1, String word2) {
+        int m = word1.length();
+        int n = word2.length();
+        if(m * n == 0){
+            return n + m;
+        }
+        int[][] dp = new int[m+1][n+1];
+        for(int i = 0; i < m+1; i++){
+            dp[i][0] = i;
+        }
+        for(int i = 0; i < n+1; i++){
+            dp[0][i] = i;
+        }
+        for(int i = 1; i < m+1; i++){
+            for(int j = 1; j < n+1; j++){
+                int down = dp[i][j-1] + 1;
+                int left = dp[i-1][j]+1;
+                int leftDown = dp[i-1][j-1];
+                if(word1.charAt(i-1) != word2.charAt(j-1)){
+                    leftDown += 1;
+                }
+                dp[i][j] = Math.min(left, Math.min(down, leftDown));
+            }
+        }
+        return dp[m][n];
+    }
+}
+```
+
+## [232. 用栈实现队列](https://leetcode.cn/problems/implement-queue-using-stacks/)
+
+> 请你仅使用两个栈实现先入先出队列。队列应当支持一般队列支持的所有操作（push、pop、peek、empty）：
+>
+> 实现 MyQueue 类：
+>
+> void push(int x) 将元素 x 推到队列的末尾
+> int pop() 从队列的开头移除并返回元素
+> int peek() 返回队列开头的元素
+> boolean empty() 如果队列为空，返回 true ；否则，返回 false
+> 说明：
+>
+> 你 只能 使用标准的栈操作 —— 也就是只有 push to top, peek/pop from top, size, 和 is empty 操作是合法的。
+> 你所使用的语言也许不支持栈。你可以使用 list 或者 deque（双端队列）来模拟一个栈，只要是标准的栈操作即可。
+
+代码：
+
+```java
+class MyQueue {
+    Stack<Integer> in;
+    Stack<Integer> out;
+
+    public MyQueue() {
+        in = new Stack<>();
+        out = new Stack<>();
+    }
+    
+    public void push(int x) {
+        in.push(x);
+    }
+    
+    public int pop() {
+        if(out.isEmpty()){
+            in2out();
+        }
+        return out.pop();
+    }
+    
+    public int peek() {
+        if(out.isEmpty()){
+            in2out();
+        }
+        return out.peek();
+    }
+    
+    public boolean empty() {
+        if(in.isEmpty() && out.isEmpty()){
+            return true;
+        }
+        return false;
+    }
+
+    public void in2out(){
+        while(!in.isEmpty()){
+            out.push(in.pop());
+        }
+    }
+}
+
+/**
+ * Your MyQueue object will be instantiated and called as such:
+ * MyQueue obj = new MyQueue();
+ * obj.push(x);
+ * int param_2 = obj.pop();
+ * int param_3 = obj.peek();
+ * boolean param_4 = obj.empty();
+ */
+```
+
+## [704. 二分查找](https://leetcode.cn/problems/binary-search/)
+
+> 给定一个 n 个元素有序的（升序）整型数组 nums 和一个目标值 target  ，写一个函数搜索 nums 中的 target，如果目标值存在返回下标，否则返回 -1。
+
+代码：
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        while(left <= right){
+            int mid = left + (right - left) / 2;
+            if(target == nums[mid]){
+                return mid;
+            } else if(target > nums[mid]){
+                left = mid + 1;
+            } else{
+                right = mid - 1;
+            }
+        }
+        return -1;
+    }
+}
+```
+
